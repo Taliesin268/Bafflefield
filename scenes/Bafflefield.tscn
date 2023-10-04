@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://cv6vh4n52bicy"]
+
+[ext_resource type="Script" path="res://scenes/Bafflefield.gd" id="1_1l88r"]
+
+[node name="Bafflefield" type="Node2D"]
+script = ExtResource("1_1l88r")
+
+[node name="Board" type="Node2D" parent="."]
+position = Vector2(62, 62)

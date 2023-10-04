@@ -1,0 +1,6 @@
+res://scenes/Bafflefield.gd
+res://scenes/board.tscn
+res://scenes/board.gd
+res://scenes/Bafflefield.tscn
+res://scenes/cell.tscn
+res://scenes/cell.gd
