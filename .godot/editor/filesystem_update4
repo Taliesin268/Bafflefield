@@ -4,3 +4,4 @@ res://scenes/board.gd
 res://scenes/Bafflefield.tscn
 res://scenes/cell.tscn
 res://scenes/cell.gd
+res://scenes/UI.gd
