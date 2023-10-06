@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://cv6vh4n52bicy"]
 
-[ext_resource type="Script" path="res://scenes/Bafflefield.gd" id="1_1l88r"]
-[ext_resource type="Script" path="res://scenes/UI.gd" id="2_wtwxl"]
+[ext_resource type="Script" path="res://scripts/Bafflefield.gd" id="1_trxsj"]
+[ext_resource type="Script" path="res://scripts/UI.gd" id="2_rvp1y"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r8xy1"]
 bg_color = Color(0.25098, 0.25098, 0.25098, 1)
@@ -10,7 +10,7 @@ bg_color = Color(0.25098, 0.25098, 0.25098, 1)
 bg_color = Color(0.188235, 0.188235, 0.188235, 1)
 
 [node name="Bafflefield" type="Node2D"]
-script = ExtResource("1_1l88r")
+script = ExtResource("1_trxsj")
 
 [node name="Board" type="Node2D" parent="."]
 position = Vector2(62, 62)
@@ -28,7 +28,7 @@ offset_bottom = 1012.0
 grow_horizontal = 0
 grow_vertical = 2
 size_flags_horizontal = 8
-script = ExtResource("2_wtwxl")
+script = ExtResource("2_rvp1y")
 
 [node name="ChatboxBackground" type="ColorRect" parent="UI"]
 layout_mode = 1
