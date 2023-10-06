@@ -5,3 +5,4 @@ res://scenes/Bafflefield.tscn
 res://scenes/cell.tscn
 res://scenes/cell.gd
 res://scenes/UI.gd
+res://data/dialog/introduction.json

@@ -31,7 +31,3 @@ func _create_board():
 			$Board.add_child(cell)
 			
 			cell.clicked.connect(_cell_clicked.bind(cell))
-
-
-func _on_button_pressed():
-	print("Button pressed!")

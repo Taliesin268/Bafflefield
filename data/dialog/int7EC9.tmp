@@ -1,0 +1,10 @@
+
+	[
+		"Welcome to the Bafflefield demo!",
+		"I'm Baf, and I'm going to introduce you to the game and rules.",
+		{ 
+			"message": "Up until now, your the messages have been appearing automatically. Press 'Continue' to dismiss this one.",
+			"timeout": false
+		},
+		"Great work!"
+	]
