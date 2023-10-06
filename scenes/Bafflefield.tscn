@@ -4,10 +4,10 @@
 [ext_resource type="Script" path="res://scenes/UI.gd" id="2_wtwxl"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r8xy1"]
-bg_color = Color(0.188235, 0.188235, 0.188235, 1)
+bg_color = Color(0.25098, 0.25098, 0.25098, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w3bdd"]
-bg_color = Color(0.25098, 0.25098, 0.25098, 1)
+bg_color = Color(0.188235, 0.188235, 0.188235, 1)
 
 [node name="Bafflefield" type="Node2D"]
 script = ExtResource("1_1l88r")
@@ -54,9 +54,13 @@ color = Color(0.160784, 0.160784, 0.160784, 1)
 
 [node name="TextScroller" type="ScrollContainer" parent="UI"]
 layout_mode = 2
-offset_right = 784.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 772.0
+offset_bottom = 772.0
 
 [node name="TextContainer" type="VBoxContainer" parent="UI/TextScroller"]
+custom_minimum_size = Vector2(760, 0)
 layout_mode = 2
 
 [node name="Button" type="Button" parent="UI"]
@@ -76,6 +80,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_r8xy1")
 theme_override_styles/fill = SubResource("StyleBoxFlat_w3bdd")
+fill_mode = 1
 show_percentage = false
 
 [node name="ButtonLabel" type="Label" parent="UI/Button"]
@@ -95,3 +100,4 @@ wait_time = 5.0
 one_shot = true
 
 [connection signal="pressed" from="UI/Button" to="UI" method="_on_button_pressed"]
+[connection signal="timeout" from="UI/Button/ButtonTimer" to="UI" method="_on_button_timer_timeout"]
