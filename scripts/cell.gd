@@ -13,7 +13,16 @@ enum CellState {BASE,SELECTED,HOVERED,HIGHLIGHTED}
 # PUBLIC VARS
 var row: int = 0
 var column: int = 0
-var unit: Unit
+var unit: Unit:
+	set(value):
+		if value == null && unit != null:
+			remove_child(unit)
+		else:
+			add_child(value)
+		unit = value
+var index: int:
+	get:
+		return row*10+column
 
 # PRIVATE VARS
 var _colors = {
@@ -31,8 +40,6 @@ var _states = {
 func _ready():
 	# Set the color scheme based on the index of the cell
 	_update_color()
-	
-	if row == 0: _states[CellState.HIGHLIGHTED] = true
 	
 	# Adjust the position based on the index
 	position.x += row*100
@@ -60,13 +67,14 @@ func spawn_unit(unit_type: Unit.UnitType, white = false):
 	var new_unit: Unit = unit_scene.instantiate()
 	new_unit.init(unit_type, white)
 	unit = new_unit
-	add_child(unit)
 	
 func highlight_cell(state: bool = true):
 	_states[CellState.HIGHLIGHTED] = state
 	_update_color()
 
-# PUBLIC FUNCTIONS
+func contains_unit():
+	return unit != null
+
 func is_black() -> bool:
 	return (row + column) % 2 == 0
 

@@ -1,4 +1,5 @@
 extends Control
+class_name UI
 
 # SIGNALS
 signal dialog_complete(dialog_name)
@@ -10,14 +11,17 @@ var _current_message = 0
 var _dialog_name
 
 # BUILT-IN FUNCTIONS
-func _process(delta):
+func _process(_delta):
 	if $Button/ButtonTimer.is_stopped(): return
 	$Button/TimeoutButton.value = $Button/ButtonTimer.time_left
 
 # CONNECTED SIGNALS
 func _on_button_pressed():
-	if _dialog != null && _current_message == _dialog.size():
+	if _dialog == null:
+		return
+	if _current_message == _dialog.size():
 		_resolve_dialog()
+		return
 	progress_dialog()
 	
 func _on_button_timer_timeout():
@@ -25,10 +29,6 @@ func _on_button_timer_timeout():
 
 # PUBLIC FUNCTIONS
 func progress_dialog():
-	if _dialog == null:
-		print_message("...")
-		return
-	
 	var message = "..."
 	if _dialog[_current_message] is String: 
 		message = _dialog[_current_message]
@@ -41,6 +41,9 @@ func progress_dialog():
 			set_button()
 		else:
 			set_button(_get_read_time(message))
+			
+		if _dialog[_current_message].has("disable_button"):
+			set_button(0,"",false)
 		
 		print_message(message)
 		_current_message += 1

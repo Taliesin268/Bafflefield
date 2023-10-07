@@ -1,8 +1,17 @@
 extends Node2D
 class_name Board
 
+# SIGNALS
+signal cell_selected(cell: Cell)
+
+# ENUMS
+enum BoardVisibility {BLACK,WHITE,ALL,NONE}
+
 # CONSTANTS
 const CELL_SCENE = preload("res://scenes/cell.tscn")
+
+# PUBLIC VARIABLES
+var board_visibility: BoardVisibility = BoardVisibility.ALL
 
 # PRIVATE VARIABLES
 var _cells: Array = []
@@ -15,7 +24,9 @@ func _ready():
 	_create_board()
 
 # CONNECTED SIGNALS
-func _cell_clicked(cell):
+func _cell_clicked(cell: Cell):
+	cell_selected.emit(cell)
+	
 	if _selected_cell != null:
 		_selected_cell.set_selected(false)
 	
@@ -36,6 +47,35 @@ func highlight_cell(index: int):
 	cell.highlight_cell()
 	_highlighted_cells.append(cell)
 
+func remove_highlight_from_cells():
+	for cell in _highlighted_cells:
+		cell.highlight_cell(false)
+		_highlighted_cells.erase(cell)
+
+func move_selected_unit(to: int):
+	var unit = _selected_cell.unit
+	_selected_cell.unit = null
+	_cells_with_units.erase(_selected_cell)
+	var cell = get_cell(to)
+	cell.unit = unit
+	_cells_with_units.append(cell)
+	
+func remove_leftover_unit():
+	for i in 6:
+		var cell = get_cell(42+i)
+		if cell.contains_unit():
+			cell.unit = null
+			_cells_with_units.erase(cell)
+			return
+
+func hide_units():
+	for cell in _cells_with_units:
+		cell.unit.hide_unit()
+
+func change_visibility(setting: BoardVisibility):
+	for cell in _cells_with_units:
+		cell.unit.update_visibility(setting)
+
 # PRIVATE FUNCTIONS
 func _create_board():
 	for column in 10:
@@ -47,3 +87,4 @@ func _create_board():
 			add_child(cell)
 			
 			cell.clicked.connect(_cell_clicked.bind(cell))
+
