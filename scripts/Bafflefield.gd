@@ -1,33 +1,22 @@
 extends Node2D
 
-# CONSTANTS
-const CELL_SCENE = preload("res://scenes/cell.tscn")
-
-# PRIVATE VARIABLES
-var _cells = []
-var _selected_cell
-
 # BUILT-IN FUNCTIONS
 func _ready():
-	_create_board()
+	$UI.load_dialog("introduction")
 
 # CONNECTED SIGNALS
-func _cell_clicked(cell):
-	print("Clicked (",cell.row,",",cell.column,")")
-	if _selected_cell != null:
-		_selected_cell.set_selected(false)
-	
-	cell.set_selected(true)
-	_selected_cell = cell
+func _on_ui_dialog_complete(dialog_name):
+	print("Dialog complete: ", dialog_name)
+	match dialog_name:
+		"introduction": 
+			_start_character_select()
+
+func _on_ui_dialog_event(event_name):
+	print("Dialog event triggered: ", event_name)
 
 # PRIVATE FUNCTIONS
-func _create_board():
-	for row in 10:
-		for column in 10:
-			var cell = CELL_SCENE.instantiate()
-			cell.row = row
-			cell.column = column
-			_cells.append(cell)
-			$Board.add_child(cell)
-			
-			cell.clicked.connect(_cell_clicked.bind(cell))
+func _start_character_select():
+	$UI.load_dialog("character_select_intro", false)
+
+
+

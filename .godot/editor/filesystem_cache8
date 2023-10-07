@@ -37,10 +37,11 @@ priest.png::CompressedTexture2D::5000180679026859585::1696581784::1696582140::1:
 ::res://data/::1696577797
 ::res://data/dialog/::1696577906
 introduction.json::JSON::-1::1696577906::0::1::::<><>::
-::res://scenes/::1696578123
-Bafflefield.tscn::PackedScene::6312091896224969268::1696578123::0::1::::<><>::res://scripts/Bafflefield.gd<>res://scripts/UI.gd
+::res://scenes/::1696638189
+Bafflefield.tscn::PackedScene::6312091896224969268::1696638456::0::1::::<><>::res://scripts/Bafflefield.gd<>res://scenes/Board.gd<>res://scripts/UI.gd
 cell.tscn::PackedScene::5899751431603099923::1696577913::0::1::::<><>::uid://bmjopnl1uioit::::res://assets/white.jpg<>res://scripts/cell.gd
-::res://scripts/::1696577913
-Bafflefield.gd::GDScript::-1::1696555811::0::1::::<>Node2D<>::
+Board.gd::GDScript::-1::1696637254::0::1::::<>Node2D<>::
+::res://scripts/::1696638300
+Bafflefield.gd::GDScript::-1::1696638456::0::1::::<>Node2D<>::
 cell.gd::GDScript::-1::1696577797::0::1::::<>Area2D<>::
-UI.gd::GDScript::-1::1696577797::0::1::::<>Control<>::
+UI.gd::GDScript::-1::1696638182::0::1::::<>Control<>::

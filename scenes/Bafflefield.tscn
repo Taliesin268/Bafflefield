@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://cv6vh4n52bicy"]
+[gd_scene load_steps=6 format=3 uid="uid://cv6vh4n52bicy"]
 
 [ext_resource type="Script" path="res://scripts/Bafflefield.gd" id="1_trxsj"]
+[ext_resource type="Script" path="res://scenes/Board.gd" id="2_r4sa0"]
 [ext_resource type="Script" path="res://scripts/UI.gd" id="2_rvp1y"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r8xy1"]
@@ -14,6 +15,7 @@ script = ExtResource("1_trxsj")
 
 [node name="Board" type="Node2D" parent="."]
 position = Vector2(62, 62)
+script = ExtResource("2_r4sa0")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
@@ -99,5 +101,7 @@ vertical_alignment = 1
 wait_time = 5.0
 one_shot = true
 
+[connection signal="dialog_complete" from="UI" to="." method="_on_ui_dialog_complete"]
+[connection signal="dialog_event" from="UI" to="." method="_on_ui_dialog_event"]
 [connection signal="pressed" from="UI/Button" to="UI" method="_on_button_pressed"]
 [connection signal="timeout" from="UI/Button/ButtonTimer" to="UI" method="_on_button_timer_timeout"]
