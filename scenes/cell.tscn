@@ -1,19 +1,22 @@
-[gd_scene load_steps=4 format=3 uid="uid://cqb5bq84fyr76"]
+[gd_scene load_steps=5 format=3 uid="uid://cqb5bq84fyr76"]
 
 [ext_resource type="Texture2D" uid="uid://bmjopnl1uioit" path="res://assets/white.jpg" id="1_6xuu4"]
 [ext_resource type="Script" path="res://scripts/cell.gd" id="1_xffua"]
+[ext_resource type="PackedScene" uid="uid://bpodfuyixu5vu" path="res://scenes/unit.tscn" id="2_740m1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_o7ulh"]
 size = Vector2(1, 1)
 
 [node name="Cell" type="Area2D"]
-scale = Vector2(100, 100)
 script = ExtResource("1_xffua")
+unit_scene = ExtResource("2_740m1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(100, 100)
 texture = ExtResource("1_6xuu4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2(100, 100)
 shape = SubResource("RectangleShape2D_o7ulh")
 
 [connection signal="input_event" from="." to="." method="_on_input_event"]

@@ -10,3 +10,6 @@ res://scripts/UI.gd
 res://scripts/Bafflefield.gd
 res://scenes/Board.gd
 res://data/dialog/character_select_intro.json
+res://Unit.gd
+res://scenes/unit.tscn
+res://scripts/cell.gd

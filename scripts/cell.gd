@@ -1,42 +1,38 @@
 extends Area2D
+class_name Cell
 
 # SIGNALS
 signal clicked()
 
 # ENUMS
-enum CellState {BASE,SELECTED,HOVERED}
-
-# CONSTANTS
-const DARK_COLORS = {
-	CellState.BASE: Color.BLACK,
-	CellState.SELECTED: Color.DARK_GREEN,
-	CellState.HOVERED: Color.DARK_BLUE
-}
-const LIGHT_COLORS = {
-	CellState.BASE: Color.WHITE,
-	CellState.SELECTED: Color.GREEN,
-	CellState.HOVERED: Color.AQUA
-}
+enum CellState {BASE,SELECTED,HOVERED,HIGHLIGHTED}
 
 # EXPORT VARS
-@export var row = 0
-@export var column = 0
+@export var unit_scene: PackedScene
+
+# PUBLIC VARS
+var row: int = 0
+var column: int = 0
+var unit: Unit
 
 # PRIVATE VARS
-var _colors
+var _colors = {
+	CellState.BASE: Color.WHITE,
+	CellState.SELECTED: Color.GREEN,
+	CellState.HIGHLIGHTED: Color("#FFA500BB")
+}
 var _states = {
 	CellState.HOVERED: false,
-	CellState.SELECTED: false
+	CellState.SELECTED: false,
+	CellState.HIGHLIGHTED: false
 }
 
 # BUILT-IN FUNCTIONS
 func _ready():
 	# Set the color scheme based on the index of the cell
-	if (row + column) % 2 == 0:
-		_colors = DARK_COLORS
-	else:
-		_colors = LIGHT_COLORS
 	_update_color()
+	
+	if row == 0: _states[CellState.HIGHLIGHTED] = true
 	
 	# Adjust the position based on the index
 	position.x += row*100
@@ -59,15 +55,31 @@ func _on_mouse_exited():
 func set_selected(selected: bool):
 	_states[CellState.SELECTED] = selected
 	_update_color()
+	
+func spawn_unit(unit_type: Unit.UnitType, white = false):
+	var new_unit: Unit = unit_scene.instantiate()
+	new_unit.init(unit_type, white)
+	unit = new_unit
+	add_child(unit)
+
+# PUBLIC FUNCTIONS
+func is_black() -> bool:
+	return (row + column) % 2 == 0
 
 # PRIVATE FUNCTIONS
 func _update_color():
+	var new_color = _colors[CellState.BASE] as Color
+	
 	if _states[CellState.SELECTED]:
-		$Sprite2D.modulate = _colors[CellState.SELECTED]
-	elif _states[CellState.HOVERED]:
-		$Sprite2D.modulate = _colors[CellState.HOVERED]
-	else:
-		$Sprite2D.modulate = _colors[CellState.BASE]
-
-
-
+		new_color = _colors[CellState.SELECTED]
+		
+	if _states[CellState.HIGHLIGHTED]:
+		new_color = new_color.blend(_colors[CellState.HIGHLIGHTED])
+	
+	if is_black():
+		new_color = new_color.darkened(0.75)
+	
+	if _states[CellState.HOVERED]:
+		new_color = new_color.darkened(0.4)
+		
+	$Sprite2D.modulate = new_color

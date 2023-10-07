@@ -1,4 +1,5 @@
 extends Node2D
+class_name Board
 
 # CONSTANTS
 const CELL_SCENE = preload("res://scenes/cell.tscn")
@@ -19,10 +20,14 @@ func _cell_clicked(cell):
 	cell.set_selected(true)
 	_selected_cell = cell
 
+# PUBLIC FUNCTIONS
+func get_cell(index: int) -> Cell:
+	return _cells[index]
+
 # PRIVATE FUNCTIONS
 func _create_board():
-	for row in 10:
-		for column in 10:
+	for column in 10:
+		for row in 10:
 			var cell = CELL_SCENE.instantiate()
 			cell.row = row
 			cell.column = column

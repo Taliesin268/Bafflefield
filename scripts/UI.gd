@@ -16,10 +16,8 @@ func _process(delta):
 
 # CONNECTED SIGNALS
 func _on_button_pressed():
-	if _current_message == _dialog.size():
-		_dialog = null
-		_current_message = 0
-		dialog_complete.emit(_dialog_name)
+	if _dialog != null && _current_message == _dialog.size():
+		_resolve_dialog()
 	progress_dialog()
 	
 func _on_button_timer_timeout():
@@ -30,8 +28,6 @@ func progress_dialog():
 	if _dialog == null:
 		print_message("...")
 		return
-	
-	print(_dialog[_current_message])
 	
 	var message = "..."
 	if _dialog[_current_message] is String: 
@@ -78,6 +74,12 @@ func load_dialog(dialog_name: String, progress: bool = true):
 		progress_dialog()
 
 # PRIVATE FUNCTIONS
+func _resolve_dialog():
+	_dialog = null
+	_current_message = 0
+	set_button(0,"",false)
+	dialog_complete.emit(_dialog_name)
+
 func _get_read_time(text: String):
 	return float(_get_word_count(text)) / 4
 
