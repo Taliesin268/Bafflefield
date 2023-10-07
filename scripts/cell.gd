@@ -61,6 +61,10 @@ func spawn_unit(unit_type: Unit.UnitType, white = false):
 	new_unit.init(unit_type, white)
 	unit = new_unit
 	add_child(unit)
+	
+func highlight_cell(state: bool = true):
+	_states[CellState.HIGHLIGHTED] = state
+	_update_color()
 
 # PUBLIC FUNCTIONS
 func is_black() -> bool:

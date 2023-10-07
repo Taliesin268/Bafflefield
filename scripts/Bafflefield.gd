@@ -62,16 +62,34 @@ class IntroductionState extends BaseState:
 		super.handle_event(event_name)
 
 class CharacterSelectState extends BaseState:
+	var SUBSTATES = [
+		[ { "func": _spawn_characters, "args": [] }, { "func": _highlight_cell, "args": [ 90 ] } ]
+	]
+	var _current_substate = 0
+	var _current_highlighted_cell_index: int
+	
 	func enter_state(game_board: Board):
 		state_name = "Character Select State"
 		super.enter_state(game_board)
-		_spawn_characters()
+		_process_substate()
 
-	func _spawn_characters():
-		_game_board.get_cell(42).spawn_unit(Unit.UnitType.ARCHER)
-		_game_board.get_cell(43).spawn_unit(Unit.UnitType.ASSASSIN)
-		_game_board.get_cell(44).spawn_unit(Unit.UnitType.KNIGHT)
-		_game_board.get_cell(45).spawn_unit(Unit.UnitType.MAGICIAN)
-		_game_board.get_cell(46).spawn_unit(Unit.UnitType.MONARCH)
-		_game_board.get_cell(47).spawn_unit(Unit.UnitType.PRIEST)
+	func _spawn_characters(white: bool = false):
+		_game_board.spawn_unit(42, Unit.UnitType.ARCHER, white)
+		_game_board.spawn_unit(43, Unit.UnitType.ASSASSIN, white)
+		_game_board.spawn_unit(44, Unit.UnitType.KNIGHT, white)
+		_game_board.spawn_unit(45, Unit.UnitType.MAGICIAN, white)
+		_game_board.spawn_unit(46, Unit.UnitType.MONARCH, white)
+		_game_board.spawn_unit(47, Unit.UnitType.PRIEST, white)
+		pass
+		
+	func _process_substate():
+		var operations = SUBSTATES[_current_substate]
+		for operation in operations:
+			operation.func.callv(operation.args)
+		
+		_current_substate += 1
+		
+	func _highlight_cell(index: int):
+		_game_board.highlight_cell(index)
+		_current_highlighted_cell_index = index
 		pass

@@ -5,8 +5,10 @@ class_name Board
 const CELL_SCENE = preload("res://scenes/cell.tscn")
 
 # PRIVATE VARIABLES
-var _cells = []
-var _selected_cell
+var _cells: Array = []
+var _selected_cell: Cell
+var _cells_with_units: Array = []
+var _highlighted_cells: Array = []
 
 # BUILT-IN FUNCTIONS
 func _ready():
@@ -23,6 +25,16 @@ func _cell_clicked(cell):
 # PUBLIC FUNCTIONS
 func get_cell(index: int) -> Cell:
 	return _cells[index]
+	
+func spawn_unit(cell_index: int, unit_type: Unit.UnitType, white: bool = false):
+	var cell = get_cell(cell_index)
+	cell.spawn_unit(unit_type, white)
+	_cells_with_units.append(cell)
+	
+func highlight_cell(index: int):
+	var cell = get_cell(index)
+	cell.highlight_cell()
+	_highlighted_cells.append(cell)
 
 # PRIVATE FUNCTIONS
 func _create_board():
