@@ -8,6 +8,7 @@ enum UnitType {ARCHER,ASSASSIN,KNIGHT,MAGICIAN,MONARCH,PRIEST}
 var defeated: bool = false:
 	set(value):
 		defeated = value
+		_hidden = false
 		_update_unit_sprite()
 var unit_type_name: String:
 	get:

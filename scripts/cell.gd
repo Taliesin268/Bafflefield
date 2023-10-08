@@ -32,9 +32,10 @@ var _colors = {
 	CellState.BASE: Color.WHITE,
 	CellState.SELECTED: Color.GREEN,
 	CellState.HIGHLIGHTED: [
-		Color("#0000FFBB"), # 1. Blue
-		Color("#FFA500BB"), # 2. Orange
-		Color('#FF0000BB') # 3. Red
+		Color("#0000FFBB"), # 1. Blue (Move Action)
+		Color("#FFA500BB"), # 2. Orange (Action)
+		Color('#FF0000BB'), # 3. Red (Turn Ending Action)
+		Color('#800080BB') # 4. Purple (Turn Ending Move)
 	]
 }
 var _states = {

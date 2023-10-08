@@ -182,6 +182,8 @@ class GameState extends BaseState:
 		_ui.get_node("Button").pressed.disconnect(_start_turn)
 		_ui.set_button(0,"",false)
 		_game_board.cell_selected.connect(_on_cell_selected)
+		if white: _ui.print_message("It's White's turn!")
+		else: _ui.print_message("It's Black's turn!")
 	
 	func _end_turn():
 		_game_board.cell_selected.disconnect(_on_cell_selected)
@@ -197,7 +199,11 @@ class GameState extends BaseState:
 			_process_unit_action(cell)
 			return
 		
-		if cell.contains_unit() && cell.unit._white == _current_turn_white:
+		if (
+			cell.contains_unit() 
+			and cell.unit._white == _current_turn_white
+			and !cell.unit.defeated
+		):
 			_on_unit_selected(cell)
 		else:
 			_deselect_unit()
@@ -218,42 +224,99 @@ class GameState extends BaseState:
 		var unit_type = _selected_unit_cell.unit._unit_type
 		match unit_type:
 			Unit.UnitType.MONARCH: _highlight_monarch_cells()
+			Unit.UnitType.ARCHER: _highlight_archer_cells()
 			_: print("Unit type not supported: ", unit_type)
 
 	func _highlight_monarch_cells():
 		if _previous_action != null:
-			if _previous_action._unit._unit_type == Unit.UnitType.MONARCH or _previous_action._ability:
+			if _previous_action._unit == _selected_unit_cell.unit or _previous_action._ability:
 				return
 		
 		for movement_cell in _selected_unit_cell.get_movement_range():
 			if _game_board.get_cell(movement_cell).contains_unit():
 				var hop_over_cell_index = _selected_unit_cell.index + (movement_cell - _selected_unit_cell.index) * 2
-				if Cell.is_valid_cell_index(hop_over_cell_index) && !_game_board.get_cell(hop_over_cell_index).contains_unit()  && _previous_action == null:
+				if (
+					Cell.is_valid_cell_index(hop_over_cell_index) 
+					and !_game_board.get_cell(hop_over_cell_index).contains_unit() 
+					and _previous_action == null
+				):
 					_game_board.highlight_cell(hop_over_cell_index, 3)
 			else: 
 				if _previous_action != null:
-					_game_board.highlight_cell(movement_cell, 3)
+					_game_board.highlight_cell(movement_cell, 4)
+					continue
 				_game_board.highlight_cell(movement_cell, 1)
+
+	func _highlight_archer_cells():
+		if (
+			_previous_action != null 
+			and _previous_action._unit == _selected_unit_cell.unit
+		):
+			return
+		
+		for movement_cell_index in _selected_unit_cell.get_movement_range():
+			var movement_cell = _game_board.get_cell(movement_cell_index)
+			if movement_cell.contains_unit():
+				if movement_cell.unit._white == _current_turn_white: continue
+				if movement_cell.unit.defeated : continue
+				if _previous_action != null:
+					_game_board.highlight_cell(movement_cell_index,3)
+				else:
+					_game_board.highlight_cell(movement_cell_index,2)
+			else:
+				if _previous_action != null:
+					_game_board.highlight_cell(movement_cell_index,4)
+				else:
+					_game_board.highlight_cell(movement_cell_index,1)
+			
 
 	func _process_unit_action(target: Cell):
 		var unit_type = _selected_unit_cell.unit._unit_type
+		var turn_ending_action = target.highlight_level > 2
+		
+		if target.highlight_level == 2 or target.highlight_level == 3:
+			_selected_unit_cell.unit.reveal()
+		
 		match unit_type:
 			Unit.UnitType.MONARCH: _process_monarch_action(target)
+			Unit.UnitType.ARCHER: _process_archer_action(target)
 			_: print("Unit type not supported: ", unit_type)
+		
+		_process_post_action()
+		if turn_ending_action or !_check_for_valid_actions(): _end_turn()
 	
 	func _process_monarch_action(target: Cell):
-		var turn_ending_action = false
 		if target.highlight_level == 1:
 			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target)
-		else:
-			turn_ending_action = true
 		
 		_game_board.move_selected_unit(target.index)
-		_process_post_action()
-		if turn_ending_action: _end_turn()
+	
+	func _process_archer_action(target: Cell):
+		if target.highlight_level == 1 or target.highlight_level == 4:
+			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target)
+			_game_board.move_selected_unit(target.index)
+		else:
+			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target, true)
+			target.unit.defeated = true
 	
 	func _process_post_action():
 		_game_board.remove_highlight_from_cells()
+		_selected_unit_cell = null
+
+	func _check_for_valid_actions() -> bool:
+		for cell in _game_board._cells_with_units:
+			var unit = cell.unit
+			if unit._white != _current_turn_white or unit.defeated: continue
+			_selected_unit_cell = cell
+			_highlight_cells_based_on_unit()
+			_selected_unit_cell = null
+		
+		if _game_board._highlighted_cells.is_empty():
+			_ui.print_message("No valid moves left - ending turn...")
+			return false
+		else:
+			_game_board.remove_highlight_from_cells()
+			return true
 
 	class Action:
 		var _unit: Unit

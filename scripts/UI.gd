@@ -56,6 +56,7 @@ func print_message(message: String):
 	label.text = message
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	$TextScroller/TextContainer.add_child(label)
+	$TextScroller.scroll_vertical = $TextScroller.get_v_scroll_bar().max_value
 	
 func set_button(timeout: float = 0, text: String = "Continue", enabled: bool = true):
 	$Button/TimeoutButton.max_value = timeout
