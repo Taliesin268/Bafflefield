@@ -225,6 +225,7 @@ class GameState extends BaseState:
 		match unit_type:
 			Unit.UnitType.MONARCH: _highlight_monarch_cells()
 			Unit.UnitType.ARCHER: _highlight_archer_cells()
+			Unit.UnitType.KNIGHT: _highlight_knight_cells()
 			_: print("Unit type not supported: ", unit_type)
 
 	func _highlight_monarch_cells():
@@ -265,10 +266,44 @@ class GameState extends BaseState:
 					_game_board.highlight_cell(movement_cell_index,2)
 			else:
 				if _previous_action != null:
+					if _previous_action._ability: continue
 					_game_board.highlight_cell(movement_cell_index,4)
 				else:
 					_game_board.highlight_cell(movement_cell_index,1)
-			
+
+	func _highlight_knight_cells():
+		for cell_index in _selected_unit_cell.get_touching_squares():
+			var cell = _game_board.get_cell(cell_index)
+			if cell.contains_unit():
+				if cell.unit._white == _current_turn_white: continue
+				if cell.unit.defeated: continue
+				if _previous_action == null:
+					_game_board.highlight_cell(cell_index,2)
+					continue
+				if (
+					(!_previous_action._ability and _previous_action._unit == _selected_unit_cell.unit)
+					or (_previous_action._ability and _previous_action._unit != _selected_unit_cell.unit)
+				):
+					_game_board.highlight_cell(cell_index,3)
+		
+		if (
+			_previous_action == null or
+			(!_previous_action._ability and _previous_action._unit != _selected_unit_cell.unit)
+		):
+			for cell_index in _selected_unit_cell.get_movement_range():
+				var cell = _game_board.get_cell(cell_index)
+				if !cell.contains_unit(): 
+					if _previous_action != null:
+						_game_board.highlight_cell(cell_index,4)
+					else:
+						_game_board.highlight_cell(cell_index,1)
+		
+		if _previous_action != null:
+			if !_previous_action._ability and _previous_action._unit == _selected_unit_cell.unit:
+				for cell_index in _selected_unit_cell.get_diagonal_squares():
+					var cell = _game_board.get_cell(cell_index)
+					if !cell.contains_unit(): 
+						_game_board.highlight_cell(cell_index,3)
 
 	func _process_unit_action(target: Cell):
 		var unit_type = _selected_unit_cell.unit._unit_type
@@ -276,28 +311,32 @@ class GameState extends BaseState:
 		
 		if target.highlight_level == 2 or target.highlight_level == 3:
 			_selected_unit_cell.unit.reveal()
+			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target, true)
 		
-		match unit_type:
-			Unit.UnitType.MONARCH: _process_monarch_action(target)
-			Unit.UnitType.ARCHER: _process_archer_action(target)
-			_: print("Unit type not supported: ", unit_type)
+		if target.highlight_level == 1 or target.highlight_level == 4:
+			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target)
+			_game_board.move_selected_unit(target.index)
+		else:
+			match unit_type:
+				Unit.UnitType.MONARCH: _process_monarch_action(target)
+				Unit.UnitType.ARCHER: _process_archer_action(target)
+				Unit.UnitType.KNIGHT: _process_knight_action(target)
+				_: print("Unit type not supported: ", unit_type)
 		
 		_process_post_action()
 		if turn_ending_action or !_check_for_valid_actions(): _end_turn()
 	
 	func _process_monarch_action(target: Cell):
-		if target.highlight_level == 1:
-			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target)
-		
 		_game_board.move_selected_unit(target.index)
 	
 	func _process_archer_action(target: Cell):
-		if target.highlight_level == 1 or target.highlight_level == 4:
-			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target)
-			_game_board.move_selected_unit(target.index)
-		else:
-			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target, true)
+		target.unit.defeated = true
+	
+	func _process_knight_action(target: Cell):
+		if target.contains_unit():
 			target.unit.defeated = true
+		else:
+			_game_board.move_selected_unit(target.index)
 	
 	func _process_post_action():
 		_game_board.remove_highlight_from_cells()

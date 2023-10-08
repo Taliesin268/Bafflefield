@@ -93,14 +93,7 @@ func get_movement_range(include_black: bool = false):
 	var valid_cell_indexes = []
 	
 	if include_black:
-		if Cell.is_valid_pos(row - 1, column): 
-			valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column))
-		if Cell.is_valid_pos(row + 1, column): 
-			valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column))
-		if Cell.is_valid_pos(row, column - 1): 
-			valid_cell_indexes.append(Cell.convert_pos_to_index(row, column - 1))
-		if Cell.is_valid_pos(row, column + 1): 
-			valid_cell_indexes.append(Cell.convert_pos_to_index(row, column + 1))
+		valid_cell_indexes.append_array(get_touching_black_squares())
 	
 	if Cell.is_valid_pos(row - 2, column): 
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 2, column))
@@ -110,6 +103,33 @@ func get_movement_range(include_black: bool = false):
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column - 2))
 	if Cell.is_valid_pos(row, column + 2): 
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column + 2))
+	
+	valid_cell_indexes.append_array(get_diagonal_squares())
+	
+	return valid_cell_indexes
+
+func get_touching_black_squares() -> Array:
+	var valid_cell_indexes = []
+	
+	if Cell.is_valid_pos(row - 1, column): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column))
+	if Cell.is_valid_pos(row + 1, column): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column))
+	if Cell.is_valid_pos(row, column - 1): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column - 1))
+	if Cell.is_valid_pos(row, column + 1): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column + 1))
+	
+	return valid_cell_indexes
+
+func get_touching_squares() -> Array:
+	var touching_squares = get_touching_black_squares()
+	touching_squares.append_array(get_diagonal_squares())
+	return touching_squares
+
+func get_diagonal_squares() -> Array:
+	var valid_cell_indexes = []
+	
 	if Cell.is_valid_pos(row - 1, column - 1): 
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column - 1))
 	if Cell.is_valid_pos(row - 1, column + 1): 
@@ -120,7 +140,7 @@ func get_movement_range(include_black: bool = false):
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column + 1))
 	
 	return valid_cell_indexes
-	
+
 static func is_valid_cell_index(cell_index: int):
 	return cell_index >= 0 && cell_index < 100
 
