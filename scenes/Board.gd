@@ -34,6 +34,10 @@ func _cell_clicked(cell: Cell):
 	_selected_cell = cell
 
 # PUBLIC FUNCTIONS
+func deselect_cell():
+	_selected_cell.set_selected(false)
+	_selected_cell = null
+
 func get_cell(index: int) -> Cell:
 	return _cells[index]
 	

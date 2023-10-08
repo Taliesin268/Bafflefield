@@ -22,15 +22,18 @@ var unit: Unit:
 		unit = value
 var index: int:
 	get:
-		return (row*10)+column
+		return Cell.convert_pos_to_index(row, column)
+var highlight_level: int:
+	get:
+		return _states[CellState.HIGHLIGHTED]
 
 # PRIVATE VARS
 var _colors = {
 	CellState.BASE: Color.WHITE,
 	CellState.SELECTED: Color.GREEN,
 	CellState.HIGHLIGHTED: [
-		Color("#FFA500BB"), # 1. Orange
-		Color("#0000FFBB"), # 2. Blue
+		Color("#0000FFBB"), # 1. Blue
+		Color("#FFA500BB"), # 2. Orange
 		Color('#FF0000BB') # 3. Red
 	]
 }
@@ -72,7 +75,7 @@ func spawn_unit(unit_type: Unit.UnitType, white = false):
 	new_unit.init(unit_type, white)
 	unit = new_unit
 	
-func highlight_cell(level: int = 1):
+func highlight_cell(level: int = 2):
 	_states[CellState.HIGHLIGHTED] = level
 	_update_color()
 
@@ -87,25 +90,44 @@ func is_highlighted() -> bool:
 
 func get_movement_range(include_black: bool = false):
 	var valid_cell_indexes = []
-	if include_black:
-		if is_valid_cell_index(index - 1): valid_cell_indexes.append(index - 1)
-		if is_valid_cell_index(index - 10): valid_cell_indexes.append(index - 10)
-		if is_valid_cell_index(index + 1): valid_cell_indexes.append(index + 1)
-		if is_valid_cell_index(index + 10): valid_cell_indexes.append(index + 10)
 	
-	if is_valid_cell_index(index - 2): valid_cell_indexes.append(index - 2)
-	if is_valid_cell_index(index - 9): valid_cell_indexes.append(index - 9)
-	if is_valid_cell_index(index - 11): valid_cell_indexes.append(index - 11)
-	if is_valid_cell_index(index - 20): valid_cell_indexes.append(index - 20)
-	if is_valid_cell_index(index + 2): valid_cell_indexes.append(index + 2)
-	if is_valid_cell_index(index + 9): valid_cell_indexes.append(index + 9)
-	if is_valid_cell_index(index + 11): valid_cell_indexes.append(index + 11)
-	if is_valid_cell_index(index + 20): valid_cell_indexes.append(index + 20)
+	if include_black:
+		if Cell.is_valid_pos(row - 1, column): 
+			valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column))
+		if Cell.is_valid_pos(row + 1, column): 
+			valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column))
+		if Cell.is_valid_pos(row, column - 1): 
+			valid_cell_indexes.append(Cell.convert_pos_to_index(row, column - 1))
+		if Cell.is_valid_pos(row, column + 1): 
+			valid_cell_indexes.append(Cell.convert_pos_to_index(row, column + 1))
+	
+	if Cell.is_valid_pos(row - 2, column): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 2, column))
+	if Cell.is_valid_pos(row + 2, column): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 2, column))
+	if Cell.is_valid_pos(row, column - 2): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column - 2))
+	if Cell.is_valid_pos(row, column + 2): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column + 2))
+	if Cell.is_valid_pos(row - 1, column - 1): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column - 1))
+	if Cell.is_valid_pos(row - 1, column + 1): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column + 1))
+	if Cell.is_valid_pos(row + 1, column - 1): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column - 1))
+	if Cell.is_valid_pos(row + 1, column + 1): 
+		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column + 1))
 	
 	return valid_cell_indexes
 	
 static func is_valid_cell_index(cell_index: int):
 	return cell_index >= 0 && cell_index < 100
+
+static func convert_pos_to_index(_row: int, _column: int):
+	return _row*10+_column
+
+static func is_valid_pos(_row: int, _column: int):
+	return _row >= 0 and _row < 10 and _column >= 0 && _column < 10
 
 # PRIVATE FUNCTIONS
 func _update_color():
