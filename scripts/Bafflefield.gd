@@ -82,16 +82,25 @@ class CharacterSelectState extends BaseState:
 		[ { "func": _highlight_cell, "args": [ 3 ] } ],
 		[ { "func": _highlight_cell, "args": [ 1 ] } ],
 		[
-			{ "func": _remove_leftover_unit, "args": [] }, 
+			{ "func": _remove_leftover_unit, "args": [] },
 			{ "func": _hide_units, "args": [] },
 			{ "func": _change_visibility, "args": [ Board.BoardVisibility.NONE ] },
-			{ "func": _prompt_game_start, "args": [] },
+			{ "func": _remove_highlight_from_cells, "args": [] }, 
+			{ "func": switch_state, "args": [ GameState ] },
 		]
 	]
 	
 	var _current_substate = 0
 	var _current_highlighted_cell_index: int
 	var _white: bool = false
+	
+	func exit_state():
+		if _game_board.cell_selected.is_connected(_on_cell_selected):
+			_game_board.cell_selected.disconnect(_on_cell_selected)
+		var button = _ui.get_node("Button") as Button
+		if button.pressed.is_connected(_on_unit_chosen):
+			button.pressed.disconnect(_on_unit_chosen)
+		super.exit_state()
 	
 	func enter_state(game_board: Board, ui: UI):
 		state_name = "Character Select State"
@@ -137,16 +146,21 @@ class CharacterSelectState extends BaseState:
 		_game_board.highlight_cell(index)
 		_current_highlighted_cell_index = index
 	
+	func _remove_highlight_from_cells(): _game_board.remove_highlight_from_cells()
 	func _remove_leftover_unit(): _game_board.remove_leftover_unit()
 	func _hide_units(): _game_board.hide_units()
 	func _change_visibility(setting: Board.BoardVisibility): _game_board.change_visibility(setting)
+
+class GameState extends BaseState:
+	func enter_state(game_board: Board, ui: UI):
+		state_name = "Game State"
+		super.enter_state(game_board, ui)
+		_prompt_game_start()
 	
 	func _prompt_game_start():
-		_ui.set_button(0,"Start Game")
+		_ui.set_button(0,"Start Game",true)
 		_ui.get_node("Button").pressed.connect(_start_game)
 	
-	# TODO the prompt should actually be in the game state, and prompting game start should happen
-	# on entering that state - to avoid having to remove the on-select triggers.
 	func _start_game():
 		# Move to Game state
 		_ui.print_message("Starting game...")
