@@ -42,15 +42,15 @@ func spawn_unit(cell_index: int, unit_type: Unit.UnitType, white: bool = false):
 	cell.spawn_unit(unit_type, white)
 	_cells_with_units.append(cell)
 	
-func highlight_cell(index: int):
+func highlight_cell(index: int, level: int = 1):
 	var cell = get_cell(index)
-	cell.highlight_cell()
+	cell.highlight_cell(level)
 	_highlighted_cells.append(cell)
 
 func remove_highlight_from_cells():
 	for cell in _highlighted_cells:
-		cell.highlight_cell(false)
-		_highlighted_cells.erase(cell)
+		cell.highlight_cell(0)
+	_highlighted_cells = []
 
 func move_selected_unit(to: int):
 	var unit = _selected_cell.unit
@@ -75,11 +75,20 @@ func hide_units():
 func change_visibility(setting: BoardVisibility):
 	for cell in _cells_with_units:
 		cell.unit.update_visibility(setting)
+		
+func change_visibility_by_color(white: bool = false):
+	var visibility = BoardVisibility.NONE
+	
+	if white: visibility = BoardVisibility.WHITE
+	else: visibility = BoardVisibility.BLACK
+	
+	for cell in _cells_with_units:
+		cell.unit.update_visibility(visibility)
 
 # PRIVATE FUNCTIONS
 func _create_board():
-	for column in 10:
-		for row in 10:
+	for row in 10:
+		for column in 10:
 			var cell = CELL_SCENE.instantiate()
 			cell.row = row
 			cell.column = column

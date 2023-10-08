@@ -133,6 +133,8 @@ class CharacterSelectState extends BaseState:
 		_game_board.spawn_unit(46, Unit.UnitType.MONARCH, white)
 		_game_board.spawn_unit(47, Unit.UnitType.PRIEST, white)
 		_white = white
+		if white:
+			_ui.print_message("Now it's White's turn. Black, avert your eyes.")
 		
 	func _process_substate():
 		var operations = SUBSTATES[_current_substate]
@@ -152,15 +154,70 @@ class CharacterSelectState extends BaseState:
 	func _change_visibility(setting: Board.BoardVisibility): _game_board.change_visibility(setting)
 
 class GameState extends BaseState:
+	var _current_turn_white: bool
+	var _selected_unit_cell: Cell
+	var _previous_action: Action
+	
 	func enter_state(game_board: Board, ui: UI):
 		state_name = "Game State"
 		super.enter_state(game_board, ui)
 		_prompt_game_start()
 	
 	func _prompt_game_start():
-		_ui.set_button(0,"Start Game",true)
+		_ui.set_button(0,"Start Game")
 		_ui.get_node("Button").pressed.connect(_start_game)
 	
 	func _start_game():
 		# Move to Game state
 		_ui.print_message("Starting game...")
+		_ui.get_node("Button").pressed.disconnect(_start_game)
+		_ui.print_message("Black will go first. The White player should look away from the screen now.")
+		_ui.set_button(0,"Black: Start Turn")
+		_ui.get_node("Button").pressed.connect(_start_turn)
+	
+	func _start_turn(white: bool = false):
+		_current_turn_white = white
+		_game_board.change_visibility_by_color(white)
+		_ui.get_node("Button").pressed.disconnect(_start_turn)
+		_ui.set_button(0,"",false)
+		_game_board.cell_selected.connect(_on_cell_selected)
+	
+	func _on_cell_selected(cell: Cell):
+		if cell.contains_unit():
+			_on_unit_selected(cell)
+		else:
+			_deselect_unit()
+	
+	func _on_unit_selected(cell: Cell):
+		_deselect_unit()
+		_selected_unit_cell = cell
+		_highlight_cells_based_on_unit(cell)
+		pass
+	
+	func _deselect_unit():
+		if _selected_unit_cell == null:
+			return
+		
+		_game_board.remove_highlight_from_cells()
+		_selected_unit_cell = null
+	
+	func _highlight_cells_based_on_unit(cell: Cell):
+		var unit_type = cell.unit._unit_type
+		match unit_type:
+			Unit.UnitType.MONARCH: _highlight_monarch_cells(cell)
+			_: print("Unit type not supported: ", unit_type)
+
+	func _highlight_monarch_cells(monarch_cell: Cell):
+		for movement_cell in monarch_cell.get_movement_range():
+			if _game_board.get_cell(movement_cell).contains_unit():
+				var hop_over_cell_index = monarch_cell.index + (movement_cell - monarch_cell.index) * 2
+				if Cell.is_valid_cell_index(hop_over_cell_index) && !_game_board.get_cell(hop_over_cell_index).contains_unit():
+					_game_board.highlight_cell(hop_over_cell_index, 3)
+			else: 
+				_game_board.highlight_cell(movement_cell, 2)
+
+	class Action:
+		var unit: Unit
+		var ability: bool # True if ability, false if move
+		var from: Cell
+		var to: Cell
