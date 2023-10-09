@@ -199,6 +199,8 @@ class GameState extends BaseState:
 		if white: _ui.print_message("It's White's turn!")
 		else: _ui.print_message("It's Black's turn!")
 		revive_counter[white] -= 1
+		if not _check_for_valid_actions():
+			end_game(true)
 	
 	func _end_turn():
 		_game_board.cell_selected.disconnect(_on_cell_selected)
@@ -378,7 +380,6 @@ class GameState extends BaseState:
 		return Cell.HighlightLevel.ACT
 
 	func _process_unit_action(target: Cell):
-		var unit_type = selected_cell.unit._unit_type
 		var turn_ending_action = target.highlight_level > 2
 		
 		if target.highlight_level == 2 or target.highlight_level == 3:
@@ -409,7 +410,7 @@ class GameState extends BaseState:
 		
 		_game_board.remove_highlight_from_cells()
 		selected_cell = null
-		if victory_condition_met(): end_game(_current_turn_white)
+		if victory_condition_met(): end_game()
 		if turn_ending_action or !_check_for_valid_actions(): _end_turn()
 
 	func victory_condition_met():
@@ -424,8 +425,10 @@ class GameState extends BaseState:
 		
 		return false
 	
-	func end_game(_current_turn_white):
-		if _current_turn_white:
+	func end_game(stalemate: bool = false):
+		if stalemate:
+			_ui.print_message("Stalemate :O")
+		elif _current_turn_white:
 			_ui.print_message("White wins!")
 		else:
 			_ui.print_message("Black wins!")
@@ -436,7 +439,9 @@ class GameState extends BaseState:
 			var unit = cell.unit
 			if unit._white != _current_turn_white or unit.defeated: continue
 			selected_cell = cell
-			_highlight_cells_based_on_unit()
+			_highlight_movement_cells()
+			if _unit_can_act():
+				_highlight_cells_based_on_unit()
 			selected_cell = null
 		
 		if _game_board._highlighted_cells.is_empty():
