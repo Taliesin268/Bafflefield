@@ -14,6 +14,7 @@ var unit_type_name: String:
 	get:
 		return UnitType.keys()[_unit_type]
 
+
 # PRIVATE VARIABLES
 var _visible: bool = true
 var _hidden: bool = false

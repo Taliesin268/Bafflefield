@@ -1,4 +1,5 @@
 extends Node2D
+class_name Bafflefield
 
 # PRIVATE VARIABLES
 var state: BaseState
@@ -156,13 +157,26 @@ class CharacterSelectState extends BaseState:
 
 class GameState extends BaseState:
 	var _current_turn_white: bool
-	var _selected_unit_cell: Cell
+	var selected_cell: Cell
 	var _previous_action: Action
+	var selected_unit: Unit:
+		get:
+			if selected_cell == null:
+				return null
+			return selected_cell.unit
+	var revive_counter = {
+		true: 0,
+		false: 0
+	}
 	
 	func enter_state(game_board: Board, ui: UI):
 		state_name = "Game State"
 		super.enter_state(game_board, ui)
 		_prompt_game_start()
+	
+	func exit_state():
+		_game_board.change_visibility(Board.BoardVisibility.ALL)
+		_game_board.cell_selected.disconnect(_on_cell_selected)
 	
 	func _prompt_game_start():
 		_ui.set_button(0,"Start Game")
@@ -184,6 +198,7 @@ class GameState extends BaseState:
 		_game_board.cell_selected.connect(_on_cell_selected)
 		if white: _ui.print_message("It's White's turn!")
 		else: _ui.print_message("It's Black's turn!")
+		revive_counter[white] -= 1
 	
 	func _end_turn():
 		_game_board.cell_selected.disconnect(_on_cell_selected)
@@ -210,52 +225,58 @@ class GameState extends BaseState:
 	
 	func _on_unit_selected(cell: Cell):
 		_deselect_unit()
-		_selected_unit_cell = cell
-		_highlight_cells_based_on_unit()
+		selected_cell = cell
+		_highlight_movement_cells()
+		if _unit_can_act():
+			_highlight_cells_based_on_unit()
 	
 	func _deselect_unit():
-		if _selected_unit_cell == null:
+		if selected_cell == null:
 			return
 		
 		_game_board.remove_highlight_from_cells()
-		_selected_unit_cell = null
+		selected_cell = null
+	
+	func _highlight_movement_cells():
+		if _unit_can_move():
+			for index in selected_cell.get_movement_range():
+				var cell = _game_board.get_cell(index)
+				if cell.contains_unit() or cell.is_black(): continue
+				_game_board.highlight_cell(index, get_highlight_level(false))
 	
 	func _highlight_cells_based_on_unit():
-		var unit_type = _selected_unit_cell.unit._unit_type
+		var unit_type = selected_cell.unit._unit_type
 		match unit_type:
 			Unit.UnitType.MONARCH: _highlight_monarch_cells()
 			Unit.UnitType.ARCHER: _highlight_archer_cells()
 			Unit.UnitType.KNIGHT: _highlight_knight_cells()
-			_: print("Unit type not supported: ", unit_type)
+			Unit.UnitType.ASSASSIN: _highlight_assassin_cells()
+			Unit.UnitType.PRIEST: _highlight_priest_cells()
+			Unit.UnitType.MAGICIAN: _highlight_magician_cells()
 
 	func _highlight_monarch_cells():
 		if _previous_action != null:
-			if _previous_action._unit == _selected_unit_cell.unit or _previous_action._ability:
+			if _previous_action._unit == selected_cell.unit or _previous_action._ability:
 				return
 		
-		for movement_cell in _selected_unit_cell.get_movement_range():
+		for movement_cell in selected_cell.get_movement_range():
 			if _game_board.get_cell(movement_cell).contains_unit():
-				var hop_over_cell_index = _selected_unit_cell.index + (movement_cell - _selected_unit_cell.index) * 2
+				var hop_over_cell_index = selected_cell.index + (movement_cell - selected_cell.index) * 2
 				if (
 					Cell.is_valid_cell_index(hop_over_cell_index) 
 					and !_game_board.get_cell(hop_over_cell_index).contains_unit() 
 					and _previous_action == null
 				):
 					_game_board.highlight_cell(hop_over_cell_index, 3)
-			else: 
-				if _previous_action != null:
-					_game_board.highlight_cell(movement_cell, 4)
-					continue
-				_game_board.highlight_cell(movement_cell, 1)
 
 	func _highlight_archer_cells():
 		if (
 			_previous_action != null 
-			and _previous_action._unit == _selected_unit_cell.unit
+			and _previous_action._unit == selected_cell.unit
 		):
 			return
 		
-		for movement_cell_index in _selected_unit_cell.get_movement_range():
+		for movement_cell_index in selected_cell.get_movement_range():
 			var movement_cell = _game_board.get_cell(movement_cell_index)
 			if movement_cell.contains_unit():
 				if movement_cell.unit._white == _current_turn_white: continue
@@ -264,15 +285,9 @@ class GameState extends BaseState:
 					_game_board.highlight_cell(movement_cell_index,3)
 				else:
 					_game_board.highlight_cell(movement_cell_index,2)
-			else:
-				if _previous_action != null:
-					if _previous_action._ability: continue
-					_game_board.highlight_cell(movement_cell_index,4)
-				else:
-					_game_board.highlight_cell(movement_cell_index,1)
 
 	func _highlight_knight_cells():
-		for cell_index in _selected_unit_cell.get_touching_squares():
+		for cell_index in selected_cell.get_touching_squares():
 			var cell = _game_board.get_cell(cell_index)
 			if cell.contains_unit():
 				if cell.unit._white == _current_turn_white: continue
@@ -281,74 +296,148 @@ class GameState extends BaseState:
 					_game_board.highlight_cell(cell_index,2)
 					continue
 				if (
-					(!_previous_action._ability and _previous_action._unit == _selected_unit_cell.unit)
-					or (_previous_action._ability and _previous_action._unit != _selected_unit_cell.unit)
+					(!_previous_action._ability and _previous_action._unit == selected_cell.unit)
+					or (_previous_action._ability and _previous_action._unit != selected_cell.unit)
 				):
 					_game_board.highlight_cell(cell_index,3)
 		
-		if (
-			_previous_action == null or
-			(!_previous_action._ability and _previous_action._unit != _selected_unit_cell.unit)
-		):
-			for cell_index in _selected_unit_cell.get_movement_range():
-				var cell = _game_board.get_cell(cell_index)
-				if !cell.contains_unit(): 
-					if _previous_action != null:
-						_game_board.highlight_cell(cell_index,4)
-					else:
-						_game_board.highlight_cell(cell_index,1)
-		
 		if _previous_action != null:
-			if !_previous_action._ability and _previous_action._unit == _selected_unit_cell.unit:
-				for cell_index in _selected_unit_cell.get_diagonal_squares():
+			if !_previous_action._ability and _previous_action._unit == selected_cell.unit:
+				for cell_index in selected_cell.get_diagonal_squares():
 					var cell = _game_board.get_cell(cell_index)
 					if !cell.contains_unit(): 
 						_game_board.highlight_cell(cell_index,3)
 
+	func _highlight_assassin_cells():
+		# Check movement cells (including black because is assassin)
+		for index in (
+			selected_cell.get_movement_range() 
+			+ selected_cell.get_touching_black_squares()
+		):
+			var cell = _game_board.get_cell(index)
+			if cell.contains_unit(): continue
+			if cell.is_black():
+				_game_board.highlight_cell(index, get_highlight_level())
+				
+		# Check attacking cells
+		for index in selected_cell.get_touching_squares():
+			var cell = _game_board.get_cell(index)
+			if cell.contains_unit(not selected_unit._white):
+				_game_board.highlight_cell(index, get_highlight_level())
+	
+	func _highlight_priest_cells():
+		for index in selected_cell.get_movement_range():
+			var cell = _game_board.get_cell(index)
+			if (
+				cell.contains_unit(selected_unit._white)
+				and cell.unit.defeated
+				and revive_counter[selected_unit._white] <= 0
+			):
+				_game_board.highlight_cell(index, get_highlight_level())
+	
+	func _highlight_magician_cells():
+		for cell in _game_board._cells_with_units:
+			var unit = cell.unit as Unit
+			if (
+				unit._white == selected_unit._white 
+				and not unit.defeated
+				and not unit == selected_unit
+				and not cell.is_black()
+				):
+				_game_board.highlight_cell(cell.index, get_highlight_level())
+	
+	func _unit_can_move() -> bool:
+		return (
+			_previous_action == null
+			or (
+				_previous_action.was_move()
+				and not _previous_action.was_unit(selected_unit)
+			)
+		)
+		
+	func _unit_can_act() -> bool:
+		return (
+			_previous_action == null
+			or (
+				_previous_action.was_move()
+				and _previous_action.was_unit(selected_unit)
+			)
+			or (
+				_previous_action.was_ability()
+				and not _previous_action.was_unit(selected_unit)
+			)
+		)
+
+	func get_highlight_level(ability: bool = true):
+		if not ability:
+			if _previous_action != null:
+				return Cell.HighlightLevel.FINAL_MOVE
+			return Cell.HighlightLevel.MOVE
+		if _previous_action != null:
+			return Cell.HighlightLevel.FINAL_ACT
+		return Cell.HighlightLevel.ACT
+
 	func _process_unit_action(target: Cell):
-		var unit_type = _selected_unit_cell.unit._unit_type
+		var unit_type = selected_cell.unit._unit_type
 		var turn_ending_action = target.highlight_level > 2
 		
 		if target.highlight_level == 2 or target.highlight_level == 3:
-			_selected_unit_cell.unit.reveal()
-			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target, true)
+			selected_cell.unit.reveal()
+			_previous_action = Action.new(selected_cell.unit, selected_cell, target, true)
 		
 		if target.highlight_level == 1 or target.highlight_level == 4:
-			_previous_action = Action.new(_selected_unit_cell.unit, _selected_unit_cell, target)
+			_previous_action = Action.new(selected_cell.unit, selected_cell, target)
 			_game_board.move_selected_unit(target.index)
 		else:
-			match unit_type:
-				Unit.UnitType.MONARCH: _process_monarch_action(target)
-				Unit.UnitType.ARCHER: _process_archer_action(target)
-				Unit.UnitType.KNIGHT: _process_knight_action(target)
-				_: print("Unit type not supported: ", unit_type)
+			# If the target is a unit of the same color
+			if target.contains_unit(selected_unit._white):
+				if target.unit.defeated:
+					target.unit.defeated = false
+					revive_counter[_current_turn_white] = 2
+				else: 
+					var invisible_cell = Cell.new()
+					invisible_cell.unit = target.unit
+					target.unit = null
+					_game_board.move_selected_unit(target.index)
+					selected_cell.unit = invisible_cell.unit
+					invisible_cell.free()
+			# If the target is a unit of the opposite color
+			elif target.contains_unit(not selected_unit._white):
+				target.unit.defeated = true
+			else:
+				_game_board.move_selected_unit(target.index)
 		
-		_process_post_action()
-		if turn_ending_action or !_check_for_valid_actions(): _end_turn()
-	
-	func _process_monarch_action(target: Cell):
-		_game_board.move_selected_unit(target.index)
-	
-	func _process_archer_action(target: Cell):
-		target.unit.defeated = true
-	
-	func _process_knight_action(target: Cell):
-		if target.contains_unit():
-			target.unit.defeated = true
-		else:
-			_game_board.move_selected_unit(target.index)
-	
-	func _process_post_action():
 		_game_board.remove_highlight_from_cells()
-		_selected_unit_cell = null
+		selected_cell = null
+		if victory_condition_met(): end_game(_current_turn_white)
+		if turn_ending_action or !_check_for_valid_actions(): _end_turn()
+
+	func victory_condition_met():
+		if _game_board.get_living_unit_cells(not _current_turn_white).is_empty():
+			return true
+		
+		for cell in _game_board.get_living_unit_cells(_current_turn_white):
+			var unit = cell.unit as Unit
+			if unit._unit_type == Unit.UnitType.MONARCH:
+				if (unit._white and cell.row == 9) or (not unit._white and cell.row == 0):
+					return true
+		
+		return false
+	
+	func end_game(_current_turn_white):
+		if _current_turn_white:
+			_ui.print_message("White wins!")
+		else:
+			_ui.print_message("Black wins!")
+		switch_state(EndGameState)
 
 	func _check_for_valid_actions() -> bool:
 		for cell in _game_board._cells_with_units:
 			var unit = cell.unit
 			if unit._white != _current_turn_white or unit.defeated: continue
-			_selected_unit_cell = cell
+			selected_cell = cell
 			_highlight_cells_based_on_unit()
-			_selected_unit_cell = null
+			selected_cell = null
 		
 		if _game_board._highlighted_cells.is_empty():
 			_ui.print_message("No valid moves left - ending turn...")
@@ -368,3 +457,21 @@ class GameState extends BaseState:
 			_from = from
 			_to = to
 			_ability = ability
+		
+		func was_move():
+			return !_ability
+		
+		func was_ability():
+			return _ability
+		
+		func was_unit(unit: Unit):
+			return _unit == unit
+
+class EndGameState extends BaseState:
+	var bafflefield: Bafflefield
+	
+	func enter_state(game_board: Board, ui: UI):
+		state_name = "Game State"
+		super.enter_state(game_board, ui)
+		ui.set_button(0,"Restart Game")
+		ui.get_node("Button").pressed.connect(ui.get_parent().get_tree().reload_current_scene)

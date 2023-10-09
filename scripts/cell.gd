@@ -6,6 +6,7 @@ signal clicked()
 
 # ENUMS
 enum CellState {BASE,SELECTED,HOVERED,HIGHLIGHTED}
+enum HighlightLevel {NONE,MOVE,ACT,FINAL_ACT,FINAL_MOVE}
 
 # EXPORT VARS
 @export var unit_scene: PackedScene
@@ -80,8 +81,11 @@ func highlight_cell(level: int = 2):
 	_states[CellState.HIGHLIGHTED] = level
 	_update_color()
 
-func contains_unit():
-	return unit != null
+func contains_unit(white = null) -> bool:
+	if unit == null: return false
+	if white == null: return true
+	if white: return unit._white
+	else: return not unit._white
 
 func is_black() -> bool:
 	return (row + column) % 2 == 0
@@ -89,11 +93,8 @@ func is_black() -> bool:
 func is_highlighted() -> bool:
 	return _states[CellState.HIGHLIGHTED] > 0
 
-func get_movement_range(include_black: bool = false):
+func get_movement_range():
 	var valid_cell_indexes = []
-	
-	if include_black:
-		valid_cell_indexes.append_array(get_touching_black_squares())
 	
 	if Cell.is_valid_pos(row - 2, column): 
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 2, column))

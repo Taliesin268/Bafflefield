@@ -38,6 +38,15 @@ func deselect_cell():
 	_selected_cell.set_selected(false)
 	_selected_cell = null
 
+func get_living_unit_cells(white = null) -> Array:
+	var arr = []
+	for cell in _cells_with_units:
+		var unit = cell.unit as Unit
+		if white != null and unit._white != white: continue
+		if unit.defeated: continue
+		arr.append(cell)
+	return arr
+
 func get_cell(index: int) -> Cell:
 	return _cells[index]
 	
