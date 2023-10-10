@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://cv6vh4n52bicy"]
 
-[ext_resource type="Script" path="res://scripts/Bafflefield.gd" id="1_trxsj"]
-[ext_resource type="Script" path="res://scenes/Board.gd" id="2_r4sa0"]
-[ext_resource type="Script" path="res://scripts/UI.gd" id="2_rvp1y"]
+[ext_resource type="Script" path="res://scripts/bafflefield.gd" id="1_vb3ot"]
+[ext_resource type="Script" path="res://scripts/board.gd" id="2_rwrwc"]
+[ext_resource type="Script" path="res://scripts/ui.gd" id="3_a73ie"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r8xy1"]
 bg_color = Color(0.25098, 0.25098, 0.25098, 1)
@@ -11,11 +11,11 @@ bg_color = Color(0.25098, 0.25098, 0.25098, 1)
 bg_color = Color(0.188235, 0.188235, 0.188235, 1)
 
 [node name="Bafflefield" type="Node2D"]
-script = ExtResource("1_trxsj")
+script = ExtResource("1_vb3ot")
 
 [node name="Board" type="Node2D" parent="."]
 position = Vector2(62, 62)
-script = ExtResource("2_r4sa0")
+script = ExtResource("2_rwrwc")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
@@ -30,7 +30,7 @@ offset_bottom = 1012.0
 grow_horizontal = 0
 grow_vertical = 2
 size_flags_horizontal = 8
-script = ExtResource("2_rvp1y")
+script = ExtResource("3_a73ie")
 
 [node name="ChatboxBackground" type="ColorRect" parent="UI"]
 layout_mode = 1
@@ -71,6 +71,7 @@ offset_left = 24.0
 offset_top = 800.0
 offset_right = 760.0
 offset_bottom = 976.0
+disabled = true
 
 [node name="TimeoutButton" type="ProgressBar" parent="UI/Button"]
 layout_mode = 1
@@ -82,6 +83,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_r8xy1")
 theme_override_styles/fill = SubResource("StyleBoxFlat_w3bdd")
+value = 100.0
 fill_mode = 1
 show_percentage = false
 
@@ -93,7 +95,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 30
-text = "Continue"
 horizontal_alignment = 1
 vertical_alignment = 1
 

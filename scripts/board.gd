@@ -14,10 +14,10 @@ const CELL_SCENE = preload("res://scenes/cell.tscn")
 var board_visibility: BoardVisibility = BoardVisibility.ALL
 
 # PRIVATE VARIABLES
-var _cells: Array = []
+var _cells: Array[Cell] = []
 var _selected_cell: Cell
-var _cells_with_units: Array = []
-var _highlighted_cells: Array = []
+var _cells_with_units: Array[Cell] = []
+var _highlighted_cells: Array[Cell] = []
 
 # BUILT-IN FUNCTIONS
 func _ready():
@@ -39,10 +39,10 @@ func deselect_cell():
 	_selected_cell = null
 
 func get_living_unit_cells(white = null) -> Array:
-	var arr = []
+	var arr: Array[Cell] = []
 	for cell in _cells_with_units:
-		var unit = cell.unit as Unit
-		if white != null and unit._white != white: continue
+		var unit := cell.unit as Unit
+		if white != null and unit._white != white as bool: continue
 		if unit.defeated: continue
 		arr.append(cell)
 	return arr
@@ -66,16 +66,16 @@ func remove_highlight_from_cells():
 	_highlighted_cells = []
 
 func move_selected_unit(to: int):
-	var unit = _selected_cell.unit
+	var unit := _selected_cell.unit
 	_selected_cell.unit = null
 	_cells_with_units.erase(_selected_cell)
-	var cell = get_cell(to)
+	var cell := get_cell(to)
 	cell.unit = unit
 	_cells_with_units.append(cell)
 	
 func remove_leftover_unit():
 	for i in 6:
-		var cell = get_cell(42+i)
+		var cell := get_cell(42+i)
 		if cell.contains_unit():
 			cell.unit = null
 			_cells_with_units.erase(cell)
@@ -90,7 +90,7 @@ func change_visibility(setting: BoardVisibility):
 		cell.unit.update_visibility(setting)
 		
 func change_visibility_by_color(white: bool = false):
-	var visibility = BoardVisibility.NONE
+	var visibility: BoardVisibility = BoardVisibility.NONE
 	
 	if white: visibility = BoardVisibility.WHITE
 	else: visibility = BoardVisibility.BLACK
@@ -102,7 +102,7 @@ func change_visibility_by_color(white: bool = false):
 func _create_board():
 	for row in 10:
 		for column in 10:
-			var cell = CELL_SCENE.instantiate()
+			var cell: Cell = CELL_SCENE.instantiate() as Cell
 			cell.row = row
 			cell.column = column
 			_cells.append(cell)

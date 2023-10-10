@@ -7,7 +7,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_o7ulh"]
 size = Vector2(1, 1)
 
-[node name="Cell" type="Area2D"]
+[node name="Cell2D" type="Area2D"]
 script = ExtResource("1_xffua")
 unit_scene = ExtResource("2_740m1")
 
