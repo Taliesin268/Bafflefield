@@ -21,7 +21,6 @@ func _enter_state() -> void:
 func _exit_state() -> void:
 	_board.remove_highlight_from_cells()
 	_board.cell_selected.disconnect(_on_cell_selected)
-	var button = _ui.get_node("Button") as Button
 
 
 # CONNECTED SIGNALS
@@ -33,13 +32,9 @@ func _on_cell_selected() -> void:
 		
 		# If all characters are in position now, prompt the next step
 		if _characters_selected():
-			_ui.set_button("Done")
-			if not _ui.button.pressed.is_connected(_end_current_selection):
-				_ui.button.pressed.connect(_end_current_selection)
+			_ui.set_button("Done", _end_current_selection)
 		else:
 			_ui.disable_button()
-			if _ui.button.pressed.is_connected(_end_current_selection):
-				_ui.button.pressed.disconnect(_end_current_selection)
 		return
 	
 	_board.remove_highlight_from_cells()
@@ -64,16 +59,21 @@ func _spawn_units():
 
 ## Either swaps to White selecting their units, or starts the game.
 func _end_current_selection():
-	_ui.button.pressed.disconnect(_end_current_selection)
+	# Disable the button
+	_ui.disable_button()
+	
+	# Clean up the board
 	_remove_leftover_unit()
 	_board.hide_units()
 	_board.remove_highlight_from_cells()
+	
 	if _color == BLACK:
+		# Swap to white
 		_color = WHITE
 		_board.change_visibility(Board.BoardVisibility.WHITE)
 		_spawn_units()
 	else:
-		_board.change_visibility(Board.BoardVisibility.NONE)
+		# Start the game
 		_context.state = GameState.new(_context)
 
 

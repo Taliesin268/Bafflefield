@@ -86,7 +86,7 @@ func highlight_cell(level: int = 2):
 	_states[CellState.HIGHLIGHTED] = level
 	_update_color()
 
-func contains_unit(white = null) -> bool:
+func contains_unit() -> bool:
 	return unit != null
 
 func is_black() -> bool:

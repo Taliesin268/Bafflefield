@@ -39,7 +39,6 @@ func _exit_state() -> void:
 ## Starts the new turn and checks for stalemates.
 func _start_turn() -> void:
 	# Update Signals
-	_button.pressed.disconnect(_start_turn)
 	_board.cell_selected.connect(_on_cell_selected)
 	
 	# Reset Variables
@@ -68,9 +67,9 @@ func _end_turn() -> void:
 	# Update UI and Board
 	_board.change_visibility(Board.BoardVisibility.NONE)
 	_ui.set_button(
-			"%s: Start Turn" % ("Black" if _turn_color == WHITE else "White")
+			"%s: Start Turn" % ("Black" if _turn_color == WHITE else "White"),
+			_start_turn
 	)
-	_button.pressed.connect(_start_turn)
 
 
 func _on_cell_selected() -> void:

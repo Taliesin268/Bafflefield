@@ -1,14 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cv6vh4n52bicy"]
+[gd_scene load_steps=4 format=3 uid="uid://cv6vh4n52bicy"]
 
 [ext_resource type="Script" path="res://scripts/bafflefield.gd" id="1_vb3ot"]
 [ext_resource type="Script" path="res://scripts/board.gd" id="2_rwrwc"]
 [ext_resource type="Script" path="res://scripts/ui.gd" id="3_a73ie"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r8xy1"]
-bg_color = Color(0.25098, 0.25098, 0.25098, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w3bdd"]
-bg_color = Color(0.188235, 0.188235, 0.188235, 1)
 
 [node name="Bafflefield" type="Node"]
 script = ExtResource("1_vb3ot")
@@ -71,36 +65,5 @@ offset_left = 24.0
 offset_top = 800.0
 offset_right = 760.0
 offset_bottom = 976.0
+theme_override_font_sizes/font_size = 36
 disabled = true
-
-[node name="TimeoutButton" type="ProgressBar" parent="UI/Button"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/background = SubResource("StyleBoxFlat_r8xy1")
-theme_override_styles/fill = SubResource("StyleBoxFlat_w3bdd")
-value = 100.0
-fill_mode = 1
-show_percentage = false
-
-[node name="ButtonLabel" type="Label" parent="UI/Button"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 30
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ButtonTimer" type="Timer" parent="UI/Button"]
-wait_time = 5.0
-one_shot = true
-
-[connection signal="pressed" from="UI/Button" to="UI" method="_on_button_pressed"]
-[connection signal="timeout" from="UI/Button/ButtonTimer" to="UI" method="_on_button_timer_timeout"]
