@@ -15,15 +15,13 @@ var state: State:
 			state._exit_state()
 		state = value
 		state._enter_state()
-## A quick reference to the child Board component.
-var board: Board
 
 # ON-READY VARIABLES
 ## A quick reference to the child UI component.
 @onready var ui := $UI as UI
+## A quick reference to the child Board component.
+@onready var board := $Board as Board
 
 # BUILT-IN FUNCTIONS
 func _ready():
-	# Setting the board in ready so that it's available to the CharacterSelectState
-	board = $Board
 	state = CharacterSelectState.new(self)
