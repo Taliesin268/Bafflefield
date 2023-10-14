@@ -15,7 +15,8 @@ func print_message(message: String):
 	textContainer.add_child(label)
 	
 	# Scroll to the bottom of the scrollbar
-	textScroller.scroll_vertical = float(textScroller.get_v_scroll_bar().max_value)
+	@warning_ignore("narrowing_conversion")
+	textScroller.scroll_vertical = textScroller.get_v_scroll_bar().max_value
 
 
 ## Sets the text of the button, and the "pressed" signal
