@@ -18,8 +18,10 @@ var unit: Unit:
 	set(value):
 		if value == null && unit != null:
 			remove_child(unit)
-		else:
+			remove_from_group("contains_unit")
+		elif value != null:
 			add_child(value)
+			add_to_group("contains_unit")
 		unit = value
 var index: int:
 	get:
@@ -57,7 +59,7 @@ func _ready():
 # CONNECTED SIGNALS
 func _on_input_event(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton && event.pressed:
-		clicked.emit()
+		select()
 
 func _on_mouse_entered():
 	_states[CellState.HOVERED] = true
@@ -68,6 +70,9 @@ func _on_mouse_exited():
 	_update_color()
 
 # PUBLIC FUNCTIONS
+func select():
+	clicked.emit()
+
 func set_selected(selected: bool):
 	_states[CellState.SELECTED] = selected
 	_update_color()
@@ -82,10 +87,7 @@ func highlight_cell(level: int = 2):
 	_update_color()
 
 func contains_unit(white = null) -> bool:
-	if unit == null: return false
-	if white == null: return true
-	if white: return unit._white
-	else: return not unit._white
+	return unit != null
 
 func is_black() -> bool:
 	return (row + column) % 2 == 0
@@ -93,8 +95,8 @@ func is_black() -> bool:
 func is_highlighted() -> bool:
 	return _states[CellState.HIGHLIGHTED] > 0
 
-func get_movement_range():
-	var valid_cell_indexes = []
+func get_movement_range() -> Array[int]:
+	var valid_cell_indexes: Array[int] = []
 	
 	if Cell.is_valid_pos(row - 2, column): 
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 2, column))
@@ -109,8 +111,8 @@ func get_movement_range():
 	
 	return valid_cell_indexes
 
-func get_touching_black_squares() -> Array:
-	var valid_cell_indexes = []
+func get_adjacent_black_cells() -> Array[int]:
+	var valid_cell_indexes: Array[int] = []
 	
 	if Cell.is_valid_pos(row - 1, column): 
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column))
@@ -123,13 +125,13 @@ func get_touching_black_squares() -> Array:
 	
 	return valid_cell_indexes
 
-func get_touching_squares() -> Array:
-	var touching_squares = get_touching_black_squares()
+func get_adjacent_cells() -> Array[int]:
+	var touching_squares = get_adjacent_black_cells()
 	touching_squares.append_array(get_diagonal_squares())
 	return touching_squares
 
-func get_diagonal_squares() -> Array:
-	var valid_cell_indexes = []
+func get_diagonal_squares() -> Array[int]:
+	var valid_cell_indexes: Array[int] = []
 	
 	if Cell.is_valid_pos(row - 1, column - 1): 
 		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column - 1))

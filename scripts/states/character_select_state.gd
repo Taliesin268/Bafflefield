@@ -1,93 +1,117 @@
 class_name CharacterSelectState
 extends State
+## The initial state of the game for selecting your characters.
+##
+## State that allows you to pick which units, and where you want them to be
+## positioned. Moves into [GameState] once done.
 
-var SUBSTATES = [
-		[ { "func": _spawn_characters, "args": [] }, { "func": _highlight_cell, "args": [ 90 ] } ],
-		[ { "func": _highlight_cell, "args": [ 92 ] } ],
-		[ { "func": _highlight_cell, "args": [ 94 ] } ],
-		[ { "func": _highlight_cell, "args": [ 96 ] } ],
-		[ { "func": _highlight_cell, "args": [ 98 ] } ],
-		[ 
-			{ "func": _remove_leftover_unit, "args": [] }, 
-			{ "func": _hide_units, "args": [] },
-			{ "func": _change_visibility, "args": [ Board.BoardVisibility.WHITE ] },
-			{ "func": _spawn_characters, "args": [ true ] },
-			{ "func": _highlight_cell, "args": [ 9 ] }
-		],
-		[ { "func": _highlight_cell, "args": [ 7 ] } ],
-		[ { "func": _highlight_cell, "args": [ 5 ] } ],
-		[ { "func": _highlight_cell, "args": [ 3 ] } ],
-		[ { "func": _highlight_cell, "args": [ 1 ] } ],
-		[
-			{ "func": _remove_leftover_unit, "args": [] },
-			{ "func": _hide_units, "args": [] },
-			{ "func": _change_visibility, "args": [ Board.BoardVisibility.NONE ] },
-			{ "func": _remove_highlight_from_cells, "args": [] }
-		]
-	]
-	
-var _current_substate = 0
-var _current_highlighted_cell_index: int
-var _white: bool = false
+# CONSTANTS
+const WHITE = true
+const BLACK = false
+
+# PRIVATE VARIABLES
+var _color := BLACK
 
 # OVERRIDE FUNCTIONS
 func _enter_state() -> void:
-	_process_substate()
+	_spawn_units()
 	_board.cell_selected.connect(_on_cell_selected)
 
+
 func _exit_state() -> void:
-	if _board.cell_selected.is_connected(_on_cell_selected):
-		_board.cell_selected.disconnect(_on_cell_selected)
+	_board.remove_highlight_from_cells()
+	_board.cell_selected.disconnect(_on_cell_selected)
 	var button = _ui.get_node("Button") as Button
-	if button.pressed.is_connected(_on_unit_chosen):
-		button.pressed.disconnect(_on_unit_chosen)
+
 
 # CONNECTED SIGNALS
-func _on_cell_selected(cell: Cell):
-		var button = _ui.get_node("Button") as Button
-		if button.pressed.is_connected(_on_unit_chosen):
-			button.pressed.disconnect(_on_unit_chosen)
-			
-		if cell.contains_unit() && cell.unit._white == _white:
-			_ui.set_button(0,str("Select ", cell.unit.unit_type_name.capitalize()))
-			button.pressed.connect(_on_unit_chosen)
-		else:
-			_ui.set_button(0,"",false)
-
-func _on_unit_chosen():
-		_board.move_selected_unit(_current_highlighted_cell_index)
-		_ui.set_button(0,"",false)
-		_process_substate()
-		if _ui.get_node("Button").pressed.is_connected(_on_unit_chosen):
-			_ui.get_node("Button").pressed.disconnect(_on_unit_chosen)
-
-func _spawn_characters(white: bool = false):
-		_board.spawn_unit(42, Unit.UnitType.ARCHER, white)
-		_board.spawn_unit(43, Unit.UnitType.ASSASSIN, white)
-		_board.spawn_unit(44, Unit.UnitType.KNIGHT, white)
-		_board.spawn_unit(45, Unit.UnitType.MAGICIAN, white)
-		_board.spawn_unit(46, Unit.UnitType.MONARCH, white)
-		_board.spawn_unit(47, Unit.UnitType.PRIEST, white)
-		_white = white
-		if white:
-			_ui.print_message("Now it's White's turn. Black, avert your eyes.")
+func _on_cell_selected() -> void:
+	# If a highlighed cell was selected, move the unit to that cell
+	if _board.selected_cell.is_highlighted():
+		_board.move_unit()
+		_board.remove_highlight_from_cells()
 		
-func _process_substate():
-	var operations = SUBSTATES[_current_substate]
-	for operation in operations:
-		operation.func.callv(operation.args)
+		# If all characters are in position now, prompt the next step
+		if _characters_selected():
+			_ui.set_button("Done")
+			if not _ui.button.pressed.is_connected(_end_current_selection):
+				_ui.button.pressed.connect(_end_current_selection)
+		else:
+			_ui.disable_button()
+			if _ui.button.pressed.is_connected(_end_current_selection):
+				_ui.button.pressed.disconnect(_end_current_selection)
+		return
 	
-	_current_substate += 1
-	
-	if _current_substate == SUBSTATES.size():
-		_context.state = GameState.new(_context)
-	
-func _highlight_cell(index: int):
 	_board.remove_highlight_from_cells()
-	_board.highlight_cell(index)
-	_current_highlighted_cell_index = index
+	
+	# If a valid unit was selected, highlight all the empty valid cells
+	if _board.selected_cell.contains_unit() and _board.selected_cell.unit.color == _color:
+		_highlight_cells()
 
-func _remove_highlight_from_cells(): _board.remove_highlight_from_cells()
-func _remove_leftover_unit(): _board.remove_leftover_unit()
-func _hide_units(): _board.hide_units()
-func _change_visibility(setting: Board.BoardVisibility): _board.change_visibility(setting)
+
+# PRIVATE FUNCTIONS
+## Spawns units of each type in the middle of the board.
+func _spawn_units():
+		_board.spawn_unit(42, Unit.UnitType.ARCHER, _color)
+		_board.spawn_unit(43, Unit.UnitType.ASSASSIN, _color)
+		_board.spawn_unit(44, Unit.UnitType.KNIGHT, _color)
+		_board.spawn_unit(45, Unit.UnitType.MAGICIAN, _color)
+		_board.spawn_unit(46, Unit.UnitType.MONARCH, _color)
+		_board.spawn_unit(47, Unit.UnitType.PRIEST, _color)
+		if _color == WHITE:
+			_ui.print_message("Now it's White's turn. Black, avert your eyes.")
+
+
+## Either swaps to White selecting their units, or starts the game.
+func _end_current_selection():
+	_ui.button.pressed.disconnect(_end_current_selection)
+	_remove_leftover_unit()
+	_board.hide_units()
+	_board.remove_highlight_from_cells()
+	if _color == BLACK:
+		_color = WHITE
+		_board.change_visibility(Board.BoardVisibility.WHITE)
+		_spawn_units()
+	else:
+		_board.change_visibility(Board.BoardVisibility.NONE)
+		_context.state = GameState.new(_context)
+
+
+## Highlights the cells based on whose turn it is, and where units are.
+func _highlight_cells():
+	# Highlight all the middle cells (where the units spawn)
+	for i in 6:
+		_highlight_cell_if_empty(42 + i)
+	
+	# Highlight the white cells in the current colors baseline
+	for i in 5:
+		if _color == WHITE:
+			_highlight_cell_if_empty(i * 2 + 1)
+		else:
+			_highlight_cell_if_empty(i * 2 + 90)
+
+
+## Highlights the cell at the provided index if it doesn't contain a unit.
+func _highlight_cell_if_empty(index: int) -> void:
+	if not _board.get_cell(index).contains_unit():
+			_board.highlight_cell(index)
+
+
+## Removes the unit left in the center of the board.
+func _remove_leftover_unit():
+	for i in 6:
+		var cell := _board.get_cell(42+i)
+		if cell.contains_unit():
+			cell.unit = null
+			return
+
+
+## Returns true if all characters in the current baseline have been placed
+func _characters_selected() -> bool:
+	for i in 5:
+		if _color == WHITE and not _board.get_cell(i * 2 + 1).contains_unit():
+			return false
+		elif not _board.get_cell(i * 2 + 90).contains_unit():
+			return false
+	
+	return true
