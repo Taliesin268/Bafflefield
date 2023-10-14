@@ -10,6 +10,9 @@ var _dialog
 var _current_message = 0
 var _dialog_name
 
+# ON-READY VARIABLES
+@onready var button: Button = $Button as Button
+
 # BUILT-IN FUNCTIONS
 func _process(_delta):
 	if $Button/ButtonTimer.is_stopped(): return
@@ -43,7 +46,7 @@ func progress_dialog():
 			set_button(_get_read_time(message))
 			
 		if _dialog[_current_message].has("disable_button"):
-			set_button(0,"",false)
+			disable_button()
 		
 		print_message(message)
 		_current_message += 1
@@ -57,8 +60,9 @@ func print_message(message: String):
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	$TextScroller/TextContainer.add_child(label)
 	$TextScroller.scroll_vertical = $TextScroller.get_v_scroll_bar().max_value
-	
-func set_button(timeout: float = 0, text: String = "Continue", enabled: bool = true):
+
+
+func set_button(text: String = "Continue", enabled: bool = true, timeout: float = 0):
 	$Button/TimeoutButton.max_value = timeout
 	if timeout != 0:
 		$Button/ButtonTimer.start(timeout)
@@ -67,6 +71,9 @@ func set_button(timeout: float = 0, text: String = "Continue", enabled: bool = t
 		$Button/TimeoutButton.value = 0
 	$Button/ButtonLabel.text = text
 	$Button.disabled = !enabled
+
+func disable_button():
+	set_button("",false)
 
 func load_dialog(dialog_name: String, progress: bool = true):
 	var dialog_file = FileAccess.open(str("res://data/dialog/",dialog_name,".json"), FileAccess.READ)
@@ -81,7 +88,7 @@ func load_dialog(dialog_name: String, progress: bool = true):
 func _resolve_dialog():
 	_dialog = null
 	_current_message = 0
-	set_button(0,"",false)
+	disable_button()
 	dialog_complete.emit(_dialog_name)
 
 func _get_read_time(text: String):

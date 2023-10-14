@@ -12,19 +12,23 @@ var defeated: bool = false:
 		_update_unit_sprite()
 var unit_type_name: String:
 	get:
-		return UnitType.keys()[_unit_type]
+		return UnitType.keys()[type]
+var type: UnitType
 
 
 # PRIVATE VARIABLES
 var _visible: bool = true
 var _hidden: bool = false
-var _unit_type: UnitType
+
 var _sprite_set: UnitSpriteSet
 var _white: bool = false
+var color: bool:
+	get:
+		return _white
 
 # PUBLIC FUNCTIONS
 func init(unit_type: UnitType, white = false):
-	_unit_type = unit_type
+	type = unit_type
 	_white = white
 	_set_unit_sprite_values()
 	_update_unit_sprite()
@@ -50,7 +54,7 @@ func update_visibility(visibility: Board.BoardVisibility):
 	_update_unit_sprite()
 
 func get_unit_name():
-	return UnitType.keys()[_unit_type].to_lower()
+	return UnitType.keys()[type].to_lower()
 
 # PRIVATE FUNCTIONS
 func _update_unit_sprite():
