@@ -20,6 +20,9 @@ func print_message(message: String):
 
 ## Sets the text of the button, and the "pressed" signal
 func set_button(text: String, callable: Callable):
+	# Disconnect the other button actions first
+	disable_button()
+	
 	if not button.pressed.is_connected(callable):
 		button.pressed.connect(callable)
 	button.text = text

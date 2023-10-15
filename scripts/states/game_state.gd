@@ -308,6 +308,10 @@ func _process_action():
 		return
 	if turn_ending_action or not _are_valid_actions(): 
 		_end_turn()
+		return
+	
+	_ui.set_button("End Turn Early", _end_turn)
+
 
 
 ## Checks if either win condition has been met. (Monarch at enemy baseline, or
