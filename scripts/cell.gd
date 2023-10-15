@@ -26,26 +26,28 @@ var unit: Unit:
 var index: int:
 	get:
 		return Cell.convert_pos_to_index(row, column)
-var highlight_level: int:
-	get:
-		return _states[CellState.HIGHLIGHTED]
+var highlight_level := 0:
+	set(value):
+		if value == 0:
+			remove_from_group("is_highlighted")
+		else:
+			add_to_group("is_highlighted")
+		highlight_level = value
+var hovered := false
+var selected := false:
+	set(value):
+		selected = value
+		_update_color()
 
 # PRIVATE VARS
-var _colors = {
-	CellState.BASE: Color.WHITE,
-	CellState.SELECTED: Color.GREEN,
-	CellState.HIGHLIGHTED: [
-		Color("#0000FFBB"), # 1. Blue (Move Action)
-		Color("#FFA500BB"), # 2. Orange (Action)
-		Color('#FF0000BB'), # 3. Red (Turn Ending Action)
-		Color('#800080BB') # 4. Purple (Turn Ending Move)
-	]
-}
-var _states = {
-	CellState.HOVERED: false,
-	CellState.SELECTED: false,
-	CellState.HIGHLIGHTED: 0
-}
+const HIGHLIGHT_COLORS: Array[Color] = [
+	Color.WHITE, #0. Not highlighted - base color
+	Color("#0000FF"), # 1. Blue (Move Action)
+	Color("#FFA500"), # 2. Orange (Action)
+	Color("#FF0000"), # 3. Red (Turn Ending Action)
+	Color("#800080") # 4. Purple (Turn Ending Move)
+]
+const SELECTED_COLOR := Color("#00FF00BB")
 
 # BUILT-IN FUNCTIONS
 func _ready():
@@ -62,28 +64,28 @@ func _on_input_event(_viewport, event, _shape_idx):
 		select()
 
 func _on_mouse_entered():
-	_states[CellState.HOVERED] = true
+	hovered = true
 	_update_color()
 
 func _on_mouse_exited():
-	_states[CellState.HOVERED] = false
+	hovered = false
 	_update_color()
 
 # PUBLIC FUNCTIONS
 func select():
+	selected = true
 	clicked.emit()
 
-func set_selected(selected: bool):
-	_states[CellState.SELECTED] = selected
-	_update_color()
+func deselect():
+	selected = false
 	
 func spawn_unit(unit_type: Unit.UnitType, white = false):
 	var new_unit: Unit = unit_scene.instantiate()
 	new_unit.init(unit_type, white)
 	unit = new_unit
 	
-func highlight_cell(level: int = 2):
-	_states[CellState.HIGHLIGHTED] = level
+func highlight(level: int = 1):
+	highlight_level = level
 	_update_color()
 
 func contains_unit() -> bool:
@@ -93,7 +95,7 @@ func is_black() -> bool:
 	return (row + column) % 2 == 0
 
 func is_highlighted() -> bool:
-	return _states[CellState.HIGHLIGHTED] > 0
+	return highlight_level > 0
 
 func get_movement_range() -> Array[int]:
 	var valid_cell_indexes: Array[int] = []
@@ -155,18 +157,15 @@ static func is_valid_pos(_row: int, _column: int):
 
 # PRIVATE FUNCTIONS
 func _update_color():
-	var new_color = _colors[CellState.BASE] as Color
+	var new_color := HIGHLIGHT_COLORS[highlight_level]
 	
-	if _states[CellState.SELECTED]:
-		new_color = _colors[CellState.SELECTED]
-		
-	if is_highlighted():
-		new_color = new_color.blend(_colors[CellState.HIGHLIGHTED][_states[CellState.HIGHLIGHTED]-1])
+	if selected:
+		new_color = new_color.blend(SELECTED_COLOR)
 	
 	if is_black():
 		new_color = new_color.darkened(0.75)
 	
-	if _states[CellState.HOVERED]:
+	if hovered:
 		new_color = new_color.darkened(0.4)
 		
 	$Sprite2D.modulate = new_color

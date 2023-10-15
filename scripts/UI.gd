@@ -1,5 +1,4 @@
-extends Control
-class_name UI
+class_name UI extends Control
 
 # ON-READY VARIABLES
 @onready var button := $Button as Button

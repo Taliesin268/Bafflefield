@@ -5,7 +5,7 @@ class_name Board
 signal cell_selected()
 
 # ENUMS
-enum BoardVisibility {BLACK,WHITE,ALL,NONE}
+enum BoardVisibility {NONE,BLACK,WHITE,ALL}
 
 # CONSTANTS
 const CELL_SCENE = preload("res://scenes/cell.tscn")
@@ -16,12 +16,14 @@ var selected_cell: Cell:
 	set(value):
 		previous_cell = selected_cell
 		selected_cell = value
+var previous_cell: Cell
+
+# SHORTCUT VARIABLES
 var selected_unit: Unit:
 	get:
 		if selected_cell == null:
 			return null
 		return selected_cell.unit
-var previous_cell: Cell
 var previous_unit: Unit:
 	get:
 		if previous_cell == null:
@@ -30,7 +32,6 @@ var previous_unit: Unit:
 
 # PRIVATE VARIABLES
 var _cells: Array[Cell] = []
-var _highlighted_cells: Array[Cell] = []
 
 # BUILT-IN FUNCTIONS
 func _ready():
@@ -39,22 +40,26 @@ func _ready():
 # CONNECTED SIGNALS
 func _cell_clicked(cell: Cell):
 	if selected_cell != null:
-		selected_cell.set_selected(false)
+		selected_cell.deselect()
 	
-	cell.set_selected(true)
 	selected_cell = cell
 	
 	cell_selected.emit()
 
 # PUBLIC FUNCTIONS
 func deselect_cell():
-	selected_cell.set_selected(false)
+	selected_cell.deselect()
 	selected_cell = null
 	previous_cell = null
 
 func get_cells_with_units() -> Array[Cell]:
 	var cells: Array[Cell] = []
 	cells.assign(get_tree().get_nodes_in_group("contains_unit"))
+	return cells
+
+func get_highlighted_cells() -> Array[Cell]:
+	var cells: Array[Cell] = []
+	cells.assign(get_tree().get_nodes_in_group("is_highlighted"))
 	return cells
 
 func get_cells_with_living_units_by_color(color) -> Array[Cell]:
@@ -72,16 +77,11 @@ func get_cell(index: int) -> Cell:
 func spawn_unit(cell_index: int, unit_type: Unit.UnitType, white: bool = false):
 	var cell = get_cell(cell_index)
 	cell.spawn_unit(unit_type, white)
-	
-func highlight_cell(index: int, level: int = 1):
-	var cell = get_cell(index)
-	cell.highlight_cell(level)
-	_highlighted_cells.append(cell)
+
 
 func remove_highlight_from_cells():
-	for cell in _highlighted_cells:
-		cell.highlight_cell(0)
-	_highlighted_cells = []
+	for cell in get_highlighted_cells():
+		cell.highlight(0)
 
 func move_unit():
 	var unit := previous_unit

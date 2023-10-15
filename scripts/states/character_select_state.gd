@@ -66,6 +66,7 @@ func _end_current_selection():
 	_remove_leftover_unit()
 	_board.hide_units()
 	_board.remove_highlight_from_cells()
+	_board.deselect_cell()
 	
 	if _color == BLACK:
 		# Swap to white
@@ -93,8 +94,9 @@ func _highlight_cells():
 
 ## Highlights the cell at the provided index if it doesn't contain a unit.
 func _highlight_cell_if_empty(index: int) -> void:
-	if not _board.get_cell(index).contains_unit():
-			_board.highlight_cell(index)
+	var cell = _board.get_cell(index)
+	if not cell.contains_unit():
+		cell.highlight()
 
 
 ## Removes the unit left in the center of the board.

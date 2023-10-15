@@ -97,7 +97,7 @@ func _highlight_movement_cells():
 		var cell = _board.get_cell(index)
 		# If the cell is an empty, white cell, highlight it.
 		if not cell.contains_unit() and not cell.is_black(): 
-			_board.highlight_cell(index, _get_highlight_level(MOVE))
+			cell.highlight(_get_highlight_level(MOVE))
 
 
 ## Highlights all cells the currently selected unit can affect with their 
@@ -129,15 +129,18 @@ func _highlight_monarch_cells():
 				and _unit_can_move() and _unit_can_act()
 			):
 				# This counts as an action and a move, so use final act
-				_board.highlight_cell(to_index, Cell.HighlightLevel.FINAL_ACT)
+				_board.get_cell(to_index).highlight(Cell.HighlightLevel.FINAL_ACT)
 
 
 ## Highlights action cells for the Archer unit.
 func _highlight_archer_cells():
+	if _previous_action.was_unit(_selected_unit):
+		return # If the archer has already moved, they cannot act
+	
 	for index in _selected_cell.get_movement_range():
 		var cell = _board.get_cell(index)
 		if _cell_contains_living_enemy_unit(cell):
-			_board.highlight_cell(index,_get_highlight_level())
+			cell.highlight(_get_highlight_level())
 
 
 ## Highlights action cells for the Knight unit.
@@ -146,7 +149,7 @@ func _highlight_knight_cells():
 	for index in _selected_cell.get_adjacent_cells():
 		var cell = _board.get_cell(index)
 		if _cell_contains_living_enemy_unit(cell):
-			_board.highlight_cell(index,_get_highlight_level())
+			cell.highlight(_get_highlight_level())
 	
 	# If this unit has already moved, target all empty diagonal cells
 	if (
@@ -157,7 +160,7 @@ func _highlight_knight_cells():
 		for index in _selected_cell.get_diagonal_squares():
 			var cell = _board.get_cell(index)
 			if not cell.contains_unit(): 
-				_board.highlight_cell(index,_get_highlight_level())
+				cell.highlight(_get_highlight_level())
 
 
 ## Highlights action cells for the Assassin unit.
@@ -169,13 +172,13 @@ func _highlight_assassin_cells():
 	):
 		var cell = _board.get_cell(index)
 		if cell.is_black() and not cell.contains_unit():
-			_board.highlight_cell(index, _get_highlight_level())
+			cell.highlight(_get_highlight_level())
 			
 	# Highlight all adjacent enemy units
 	for index in _selected_cell.get_adjacent_cells():
 		var cell = _board.get_cell(index)
 		if _cell_contains_living_enemy_unit(cell):
-			_board.highlight_cell(index, _get_highlight_level())
+			cell.highlight(_get_highlight_level())
 
 
 ## Highlights action cells for the Priest unit.
@@ -189,7 +192,7 @@ func _highlight_priest_cells():
 				and cell.unit.defeated
 				and _revive_counter[_selected_unit._white] <= 0
 		):
-			_board.highlight_cell(index, _get_highlight_level())
+			cell.highlight(_get_highlight_level())
 
 
 ## Highlights action cells for the Magician unit.
@@ -203,7 +206,7 @@ func _highlight_magician_cells():
 			and not unit == _selected_unit
 			and not cell.is_black()
 		):
-			_board.highlight_cell(cell.index, _get_highlight_level())
+			cell.highlight(_get_highlight_level())
 
 
 ## Returns true if the provided cell contains a living enemy unit.
@@ -334,7 +337,7 @@ func end_game(stalemate: bool = false):
 		_ui.print_message("Stalemate :O")
 	else:
 		_ui.print_message(
-				"%s wins!" % "White" if _turn_color == WHITE else "Black"
+				"%s wins!" % ("White" if _turn_color == WHITE else "Black")
 		)
 	_board.change_visibility(Board.BoardVisibility.ALL)
 	_context.state = EndGameState.new(_context)
@@ -346,12 +349,14 @@ func _are_valid_actions() -> bool:
 	for cell in _board.get_cells_with_units():
 		cell.select()
 		# If some cells were highlighted, it means there are valid actions
-		if not _board._highlighted_cells.is_empty():
+		if not _board.get_highlighted_cells().is_empty():
 			_board.remove_highlight_from_cells()
+			_board.deselect_cell()
 			return true
 		# Remove the highlights so that actions aren't performed
 		_board.remove_highlight_from_cells()
 	_ui.print_message("No valid moves left - ending turn...")
+	_board.deselect_cell()
 	return false
 
 ## A structure for storing the relevant information about a previous action.
