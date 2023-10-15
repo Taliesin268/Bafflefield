@@ -41,14 +41,18 @@ func _ready():
 func _cell_clicked(cell: Cell):
 	if selected_cell != null:
 		selected_cell.deselect()
-	
-	selected_cell = cell
+		
+	if selected_cell == cell:
+		selected_cell = null
+	else:
+		selected_cell = cell
 	
 	cell_selected.emit()
 
 # PUBLIC FUNCTIONS
 func deselect_cell():
-	selected_cell.deselect()
+	if selected_cell != null:
+		selected_cell.deselect()
 	selected_cell = null
 	previous_cell = null
 
@@ -84,6 +88,12 @@ func remove_highlight_from_cells():
 		cell.highlight(0)
 
 func move_unit():
+	# Throw an error if either the previous current cell are missing
+	assert(
+			previous_cell != null and selected_cell != null, 
+			"Error: Could not move unit. Previous cell or current cell do not exist."
+	)
+	
 	var unit := previous_unit
 	previous_cell.unit = null
 	

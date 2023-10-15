@@ -26,7 +26,7 @@ func _exit_state() -> void:
 # CONNECTED SIGNALS
 func _on_cell_selected() -> void:
 	# If a highlighed cell was selected, move the unit to that cell
-	if _board.selected_cell.is_highlighted():
+	if _board.selected_cell != null and _board.selected_cell.is_highlighted():
 		_board.move_unit()
 		_board.remove_highlight_from_cells()
 		
@@ -40,7 +40,11 @@ func _on_cell_selected() -> void:
 	_board.remove_highlight_from_cells()
 	
 	# If a valid unit was selected, highlight all the empty valid cells
-	if _board.selected_cell.contains_unit() and _board.selected_cell.unit.color == _color:
+	if (
+			_board.selected_cell != null
+			and _board.selected_cell.contains_unit() 
+			and _board.selected_cell.unit.color == _color
+	):
 		_highlight_cells()
 
 

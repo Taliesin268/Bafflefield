@@ -1,11 +1,10 @@
-extends Area2D
-class_name Cell
+class_name Cell extends Area2D
+
 
 # SIGNALS
 signal clicked()
 
 # ENUMS
-enum CellState {BASE,SELECTED,HOVERED,HIGHLIGHTED}
 enum HighlightLevel {NONE,MOVE,ACT,FINAL_ACT,FINAL_MOVE}
 
 # EXPORT VARS

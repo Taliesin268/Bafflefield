@@ -74,14 +74,15 @@ func _end_turn() -> void:
 
 func _on_cell_selected() -> void:
 	# If a highlighted cell has been clicked, an action should be performed.
-	if _selected_cell.is_highlighted():
+	if _selected_cell != null and _selected_cell.is_highlighted():
 		_process_action()
 		return
 
 	# Remove the highlight and check for a unit
 	_board.remove_highlight_from_cells()
 	if (
-			_selected_cell.contains_unit() 
+			_selected_cell != null
+			and _selected_cell.contains_unit() 
 			and _selected_cell.unit.color == _turn_color
 			and not _selected_cell.unit.defeated
 	):
@@ -93,6 +94,7 @@ func _on_cell_selected() -> void:
 func _highlight_movement_cells():
 	if not _unit_can_move():
 		return
+		
 	for index in _selected_cell.get_movement_range():
 		var cell = _board.get_cell(index)
 		# If the cell is an empty, white cell, highlight it.
