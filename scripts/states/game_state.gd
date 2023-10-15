@@ -134,7 +134,7 @@ func _highlight_monarch_cells():
 
 ## Highlights action cells for the Archer unit.
 func _highlight_archer_cells():
-	if _previous_action.was_unit(_selected_unit):
+	if _previous_action != null and _previous_action.was_unit(_selected_unit):
 		return # If the archer has already moved, they cannot act
 	
 	for index in _selected_cell.get_movement_range():
