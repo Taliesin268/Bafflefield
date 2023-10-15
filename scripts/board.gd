@@ -77,10 +77,6 @@ func get_cells_with_living_units_by_color(color) -> Array[Cell]:
 
 func get_cell(index: int) -> Cell:
 	return _cells[index]
-	
-func spawn_unit(cell_index: int, unit_type: Unit.UnitType, white: bool = false):
-	var cell = get_cell(cell_index)
-	cell.spawn_unit(unit_type, white)
 
 
 func remove_highlight_from_cells():
@@ -115,6 +111,24 @@ func change_visibility_by_color(white: bool = false):
 	
 	for cell in get_cells_with_units():
 		cell.unit.update_visibility(visibility)
+
+
+## Given two [Cell]s that are in neighbouring white [Cell]s, returns the next white
+## [Cell] in sequence.
+func get_next_white_cell(first: Cell, second: Cell) -> Cell:
+	# Find the direction of the second cell from the first
+	var row_direction = second.row - first.row
+	var column_direction = second.column - first.column
+	
+	# Get the row and column one further in the direction of the second cell
+	var column = second.column + column_direction
+	var row = second.row + row_direction
+	
+	# If either the column or row are out of bounds, return nothing
+	if column > 9 or column < 0 or row > 9 or row < 0:
+		return null
+	
+	return get_cell(Cell.convert_pos_to_index(row, column))
 
 # PRIVATE FUNCTIONS
 func _create_board():

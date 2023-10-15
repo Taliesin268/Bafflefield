@@ -119,19 +119,18 @@ func _highlight_action_cells():
 ## Highlights action cells for the Monarch unit.
 func _highlight_monarch_cells():
 	for index in _selected_cell.get_movement_range():
-		if _board.get_cell(index).contains_unit():
+		var cell = _board.get_cell(index)
+		if cell.contains_unit():
 			# Get the next cell in the same direction as the identified unit
-			var to_index = _selected_cell.index + (index - _selected_cell.index) * 2
+			var bounce_cell = _board.get_next_white_cell(_selected_cell, cell)
 			if (
-				# Check that the cell is between 0 and 99
-				Cell.is_valid_cell_index(to_index)
-				# Check that the cell doesn't contain a unit
-				and not _board.get_cell(to_index).contains_unit()
-				# Check that we can move and act (no other action taken yet)
-				and _unit_can_move() and _unit_can_act()
+				bounce_cell != null
+				and not bounce_cell.contains_unit()
+				# Check that no other action taken yet
+				and _previous_action == null
 			):
 				# This counts as an action and a move, so use final act
-				_board.get_cell(to_index).highlight(Cell.HighlightLevel.FINAL_ACT)
+				bounce_cell.highlight(Cell.HighlightLevel.FINAL_ACT)
 
 
 ## Highlights action cells for the Archer unit.
