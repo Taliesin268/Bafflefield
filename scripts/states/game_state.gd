@@ -284,16 +284,13 @@ func _process_action():
 					_revive_counter[_turn_color] = 2
 				# If the friendly unit isn't dead, swap places with them
 				else: 
-					# Create a temporary cell to store the target unit
-					var temp_cell = Cell.new()
-					temp_cell.unit = target.unit
+					# Get a reference to the target unit before removing it
+					var target_unit = target.unit
 					target.unit = null
 					
+					# Move the unit, then put the reference into the current
 					_board.move_unit()
-					
-					# Move the target unit from the temporary cell
-					from_cell.unit = temp_cell.unit
-					temp_cell.free() # Delete the temporary cell
+					from_cell.unit = target_unit
 			# If the target is a unit of the opposite color, defeat it
 			else:
 				target.unit.defeated = true
