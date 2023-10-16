@@ -113,6 +113,57 @@ func change_visibility_by_color(white: bool = false):
 		cell.unit.update_visibility(visibility)
 
 
+## Gets all adjacent cells of the opposite color.
+func get_inverse_cells(from: Cell) -> Array[Cell]:
+	var cells: Array[Cell] = []
+	
+	cells.append(get_cell_by_pos(from.row + 1, from.column))
+	cells.append(get_cell_by_pos(from.row - 1, from.column))
+	cells.append(get_cell_by_pos(from.row, from.column + 1))
+	cells.append(get_cell_by_pos(from.row, from.column - 1))
+	
+	return cells
+
+
+## Gets all diagonal cells of the same color.
+func get_diagonal_cells(from: Cell) -> Array[Cell]:
+	var cells: Array[Cell] = []
+	
+	cells.append(get_cell_by_pos(from.row + 1, from.column + 1))
+	cells.append(get_cell_by_pos(from.row + 1, from.column - 1))
+	cells.append(get_cell_by_pos(from.row - 1, from.column + 1))
+	cells.append(get_cell_by_pos(from.row - 1, from.column - 1))
+	
+	return cells
+
+
+## Gets all adjacent cells regardless of color.
+func get_adjacent_cells(from: Cell) -> Array[Cell]:
+	return get_inverse_cells(from) + get_diagonal_cells(from) 
+
+
+## Gets the next cell of the same color in each cardinal direction.
+func get_ranged_cells(from: Cell) -> Array[Cell]:
+	var cells: Array[Cell] = []
+	
+	cells.append(get_cell_by_pos(from.row + 2, from.column))
+	cells.append(get_cell_by_pos(from.row - 2, from.column))
+	cells.append(get_cell_by_pos(from.row, from.column + 2))
+	cells.append(get_cell_by_pos(from.row, from.column - 2))
+	
+	return cells
+
+
+## Gets all cells in a unit's range.
+func get_cells_in_range(from: Cell) -> Array[Cell]:
+	return get_adjacent_cells(from) + get_ranged_cells(from)
+
+
+## Gets all cells of the same color in a unit's range.
+func get_movement_cells(from: Cell) -> Array[Cell]:
+	return get_diagonal_cells(from) + get_ranged_cells(from)
+
+
 ## Given two [Cell]s that are in neighbouring white [Cell]s, returns the next white
 ## [Cell] in sequence.
 func get_next_white_cell(first: Cell, second: Cell) -> Cell:
@@ -124,13 +175,20 @@ func get_next_white_cell(first: Cell, second: Cell) -> Cell:
 	var column = second.column + column_direction
 	var row = second.row + row_direction
 	
-	# If either the column or row are out of bounds, return nothing
+	return get_cell_by_pos(row, column)
+
+
+## Returns the cell in the given position, or null if the position is invalid.
+func get_cell_by_pos(row: int, column: int) -> Cell:
+	# If position is out of bounds, return null
 	if column > 9 or column < 0 or row > 9 or row < 0:
 		return null
 	
 	return get_cell(Cell.convert_pos_to_index(row, column))
 
+
 # PRIVATE FUNCTIONS
+## Creates the game board by instantiating 100 cells.
 func _create_board():
 	for row in 10:
 		for column in 10:

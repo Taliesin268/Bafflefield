@@ -95,8 +95,7 @@ func _highlight_movement_cells():
 	if not _unit_can_move():
 		return
 		
-	for index in _selected_cell.get_movement_range():
-		var cell = _board.get_cell(index)
+	for cell in _board.get_movement_cells(_selected_cell):
 		# If the cell is an empty, white cell, highlight it.
 		if not cell.contains_unit() and not cell.is_black(): 
 			cell.highlight(_get_highlight_level(MOVE))
@@ -118,8 +117,7 @@ func _highlight_action_cells():
 
 ## Highlights action cells for the Monarch unit.
 func _highlight_monarch_cells():
-	for index in _selected_cell.get_movement_range():
-		var cell = _board.get_cell(index)
+	for cell in _board.get_movement_cells(_selected_cell):
 		if cell.contains_unit():
 			# Get the next cell in the same direction as the identified unit
 			var bounce_cell = _board.get_next_white_cell(_selected_cell, cell)
@@ -138,8 +136,7 @@ func _highlight_archer_cells():
 	if _previous_action != null and _previous_action.was_unit(_selected_unit):
 		return # If the archer has already moved, they cannot act
 	
-	for index in _selected_cell.get_movement_range():
-		var cell = _board.get_cell(index)
+	for cell in _board.get_movement_cells(_selected_cell):
 		if _cell_contains_living_enemy_unit(cell):
 			cell.highlight(_get_highlight_level())
 
@@ -147,8 +144,7 @@ func _highlight_archer_cells():
 ## Highlights action cells for the Knight unit.
 func _highlight_knight_cells():
 	# Target all enemy units in adjacent cells
-	for index in _selected_cell.get_adjacent_cells():
-		var cell = _board.get_cell(index)
+	for cell in _board.get_adjacent_cells(_selected_cell):
 		if _cell_contains_living_enemy_unit(cell):
 			cell.highlight(_get_highlight_level())
 	
@@ -158,8 +154,7 @@ func _highlight_knight_cells():
 			and _previous_action.was_move() 
 			and _previous_action.was_unit(_selected_unit)
 	):
-		for index in _selected_cell.get_diagonal_squares():
-			var cell = _board.get_cell(index)
+		for cell in _board.get_diagonal_cells(_selected_cell):
 			if not cell.contains_unit(): 
 				cell.highlight(_get_highlight_level())
 
@@ -167,17 +162,12 @@ func _highlight_knight_cells():
 ## Highlights action cells for the Assassin unit.
 func _highlight_assassin_cells():
 	# Highlight all black and white cells in range
-	for index in (
-			_selected_cell.get_movement_range() 
-			+ _selected_cell.get_adjacent_black_cells()
-	):
-		var cell = _board.get_cell(index)
+	for cell in _board.get_cells_in_range(_selected_cell):
 		if cell.is_black() and not cell.contains_unit():
 			cell.highlight(_get_highlight_level())
 			
 	# Highlight all adjacent enemy units
-	for index in _selected_cell.get_adjacent_cells():
-		var cell = _board.get_cell(index)
+	for cell in _board.get_adjacent_cells(_selected_cell):
 		if _cell_contains_living_enemy_unit(cell):
 			cell.highlight(_get_highlight_level())
 
@@ -185,8 +175,7 @@ func _highlight_assassin_cells():
 ## Highlights action cells for the Priest unit.
 func _highlight_priest_cells():
 	# Highlight all dead, friendly units in range if revive is available
-	for index in _selected_cell.get_movement_range():
-		var cell = _board.get_cell(index)
+	for cell in _board.get_movement_cells(_selected_cell):
 		if (
 				cell.contains_unit()
 				and cell.unit.color == _turn_color

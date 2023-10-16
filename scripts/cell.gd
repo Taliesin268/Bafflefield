@@ -122,77 +122,31 @@ func is_black() -> bool:
 	return (row + column) % 2 == 0
 
 
-# Returns true if this cell is highlighted.
+## Returns true if this cell is highlighted.
 func is_highlighted() -> bool:
 	return highlight_level > 0
-
-func get_movement_range() -> Array[int]:
-	var valid_cell_indexes: Array[int] = []
-	
-	if Cell.is_valid_pos(row - 2, column): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 2, column))
-	if Cell.is_valid_pos(row + 2, column): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 2, column))
-	if Cell.is_valid_pos(row, column - 2): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column - 2))
-	if Cell.is_valid_pos(row, column + 2): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column + 2))
-	
-	valid_cell_indexes.append_array(get_diagonal_squares())
-	
-	return valid_cell_indexes
-
-func get_adjacent_black_cells() -> Array[int]:
-	var valid_cell_indexes: Array[int] = []
-	
-	if Cell.is_valid_pos(row - 1, column): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column))
-	if Cell.is_valid_pos(row + 1, column): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column))
-	if Cell.is_valid_pos(row, column - 1): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column - 1))
-	if Cell.is_valid_pos(row, column + 1): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row, column + 1))
-	
-	return valid_cell_indexes
-
-func get_adjacent_cells() -> Array[int]:
-	var touching_squares = get_adjacent_black_cells()
-	touching_squares.append_array(get_diagonal_squares())
-	return touching_squares
-
-func get_diagonal_squares() -> Array[int]:
-	var valid_cell_indexes: Array[int] = []
-	
-	if Cell.is_valid_pos(row - 1, column - 1): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column - 1))
-	if Cell.is_valid_pos(row - 1, column + 1): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row - 1, column + 1))
-	if Cell.is_valid_pos(row + 1, column - 1): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column - 1))
-	if Cell.is_valid_pos(row + 1, column + 1): 
-		valid_cell_indexes.append(Cell.convert_pos_to_index(row + 1, column + 1))
-	
-	return valid_cell_indexes
 
 
 ## Converts a row and column into an index.
 static func convert_pos_to_index(row: int, column: int) -> int:
 	return row * 10 + column
 
-static func is_valid_pos(_row: int, _column: int) -> bool:
-	return _row >= 0 and _row < 10 and _column >= 0 && _column < 10
 
 # PRIVATE FUNCTIONS
+## Updates the sprite for this cell based on its state.
 func _update_color():
+	# Set the base color based on the highlight level
 	var new_color := HIGHLIGHT_COLORS[highlight_level]
 	
+	# Add in the selected color (so something can be highlighted and selected)
 	if selected:
 		new_color = new_color.blend(SELECTED_COLOR)
 	
+	# Severely darken all black squares
 	if is_black():
 		new_color = new_color.darkened(0.75)
 	
+	# Slightly darken hovered squares
 	if hovered:
 		new_color = new_color.darkened(0.4)
 		
