@@ -3,6 +3,11 @@ class_name Unit extends Sprite2D
 # ENUMS
 enum UnitType {ARCHER,ASSASSIN,KNIGHT,MAGICIAN,MONARCH,PRIEST}
 
+# CONSTANTS
+const WHITE_SHADER = preload("res://shaders/unit.gdshader")
+const WHITE = true
+const BLACK = false
+
 # PUBLIC VARIABLES
 var defeated: bool = false:
 	set(value):
@@ -31,6 +36,9 @@ func init(unit_type: UnitType, white = false):
 	_white = white
 	_set_unit_sprite_values()
 	_update_unit_sprite()
+	if color == WHITE:
+		material = ShaderMaterial.new()
+		material.shader = WHITE_SHADER
 
 func reveal():
 	_hidden = false
@@ -69,14 +77,11 @@ func _update_unit_sprite():
 
 func _set_unit_sprite_values():
 	_sprite_set = UnitSpriteSet.new() as UnitSpriteSet
-	var ending = ".png"
-	if _white:
-		ending = "-white.png"
 	var base_path = str("res://assets/units/",get_unit_name(),"/",get_unit_name())
-	_sprite_set.base_sprite = load(str(base_path,ending))
-	_sprite_set.hidden_sprite = load(str(base_path,"-hidden",ending))
-	_sprite_set.defeated_sprite = load(str(base_path,"-defeated",ending))
-	_sprite_set.unknown_sprite = load(str("res://assets/units/hidden-piece",ending))
+	_sprite_set.base_sprite = load(str(base_path, ".png"))
+	_sprite_set.hidden_sprite = load(str(base_path,"-hidden.png"))
+	_sprite_set.defeated_sprite = load(str(base_path,"-defeated.png"))
+	_sprite_set.unknown_sprite = load("res://assets/units/hidden-piece.png")
 
 # SUBCLASSES
 class UnitSpriteSet:
