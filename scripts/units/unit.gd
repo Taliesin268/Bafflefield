@@ -1,8 +1,5 @@
 class_name Unit extends Sprite2D
 
-# ENUMS
-enum UnitType {ARCHER,ASSASSIN,KNIGHT,MAGICIAN,MONARCH,PRIEST}
-
 # CONSTANTS
 const WHITE_SHADER = preload("res://shaders/unit.gdshader")
 const WHITE = true
@@ -14,78 +11,74 @@ var defeated: bool = false:
 		defeated = value
 		_hidden = false
 		_update_unit_sprite()
-var unit_type_name: String:
-	get:
-		return UnitType.keys()[type]
-var type: UnitType
-
+var color: bool:
+	set(value):
+		color = value
+		_update_unit_sprite()
 
 # PRIVATE VARIABLES
-var _visible: bool = true
-var _hidden: bool = false
+var _visible: bool = true:
+	set(value):
+		_visible = value
+		_update_unit_sprite()
+var _hidden: bool = false:
+	set(value):
+		_hidden = value
+		_update_unit_sprite()
 
-var _sprite_set: UnitSpriteSet
-var _white: bool = false
-var color: bool:
-	get:
-		return _white
+var _unknown_sprite := preload("res://assets/units/hidden-piece.png")
+var _defeated_sprite: Resource
+var _hidden_sprite: Resource
+var _base_sprite: Resource
 
 # PUBLIC FUNCTIONS
-func init(unit_type: UnitType, white = false):
-	type = unit_type
-	_white = white
-	_set_unit_sprite_values()
-	_update_unit_sprite()
+@warning_ignore("static_called_on_instance")
+func init(_color = BLACK):
+	_base_sprite = load(
+		"res://assets/units/{unit}/{unit}.png".format(
+					{"unit": _get_unit_type_name()}
+			)
+	)
+	_hidden_sprite = load(
+		"res://assets/units/{unit}/{unit}-hidden.png".format(
+					{"unit": _get_unit_type_name()}
+			)
+	)
+	_defeated_sprite = load(
+			"res://assets/units/{unit}/{unit}-defeated.png".format(
+					{"unit": _get_unit_type_name()}
+			)
+	)
+	color = _color
 	if color == WHITE:
 		material = ShaderMaterial.new()
 		material.shader = WHITE_SHADER
 
 func reveal():
 	_hidden = false
-	_update_unit_sprite()
 
 func hide_unit():
 	_hidden = true
-	_update_unit_sprite()
 
 func update_visibility(visibility: Board.BoardVisibility):
 	match visibility:
 		Board.BoardVisibility.ALL: _visible = true
 		Board.BoardVisibility.NONE: _visible = false
-		Board.BoardVisibility.WHITE:
-			if _white: _visible = true
-			else: _visible = false
-		Board.BoardVisibility.BLACK:
-			if _white: _visible = false
-			else: _visible = true
-	_update_unit_sprite()
-
-func get_unit_name():
-	return UnitType.keys()[type].to_lower()
+		Board.BoardVisibility.WHITE: _visible = color == WHITE
+		Board.BoardVisibility.BLACK: _visible = color == BLACK
 
 # PRIVATE FUNCTIONS
 func _update_unit_sprite():
 	if defeated:
-		texture = _sprite_set.defeated_sprite
+		texture = _defeated_sprite
 	elif _hidden:
 		if _visible:
-			texture = _sprite_set.hidden_sprite
+			texture = _hidden_sprite
 		else:
-			texture = _sprite_set.unknown_sprite
+			texture = _unknown_sprite
 	else:
-		texture = _sprite_set.base_sprite
+		texture = _base_sprite
 
-func _set_unit_sprite_values():
-	_sprite_set = UnitSpriteSet.new() as UnitSpriteSet
-	var base_path = str("res://assets/units/",get_unit_name(),"/",get_unit_name())
-	_sprite_set.base_sprite = load(str(base_path, ".png"))
-	_sprite_set.hidden_sprite = load(str(base_path,"-hidden.png"))
-	_sprite_set.defeated_sprite = load(str(base_path,"-defeated.png"))
-	_sprite_set.unknown_sprite = load("res://assets/units/hidden-piece.png")
-
-# SUBCLASSES
-class UnitSpriteSet:
-	var base_sprite
-	var hidden_sprite
-	var defeated_sprite
-	var unknown_sprite
+## To be overidden by children for the sake of identify asset names.
+static func _get_unit_type_name() -> String:
+	return "unit"

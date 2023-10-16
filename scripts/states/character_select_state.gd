@@ -51,12 +51,12 @@ func _on_cell_selected() -> void:
 # PRIVATE FUNCTIONS
 ## Spawns units of each type in the middle of the board.
 func _spawn_units():
-		_board.get_cell(42).spawn_unit(Unit.UnitType.ARCHER, _color)
-		_board.get_cell(43).spawn_unit(Unit.UnitType.ASSASSIN, _color)
-		_board.get_cell(44).spawn_unit(Unit.UnitType.KNIGHT, _color)
-		_board.get_cell(45).spawn_unit(Unit.UnitType.MAGICIAN, _color)
-		_board.get_cell(46).spawn_unit(Unit.UnitType.MONARCH, _color)
-		_board.get_cell(47).spawn_unit(Unit.UnitType.PRIEST, _color)
+		_board.get_cell(42).spawn_unit(Archer.SCENE, _color)
+		_board.get_cell(43).spawn_unit(Assassin.SCENE, _color)
+		_board.get_cell(44).spawn_unit(Knight.SCENE, _color)
+		_board.get_cell(45).spawn_unit(Magician.SCENE, _color)
+		_board.get_cell(46).spawn_unit(Monarch.SCENE, _color)
+		_board.get_cell(47).spawn_unit(Priest.SCENE, _color)
 		if _color == WHITE:
 			_ui.print_message("Now it's White's turn. Black, avert your eyes.")
 

@@ -21,10 +21,6 @@ const HIGHLIGHT_COLORS: Array[Color] = [
 ## The color of a selected cell.
 const SELECTED_COLOR := Color("#00FF00BB")
 
-# EXPORT VARS
-## The scene to use for units
-@export var unit_scene: PackedScene
-
 # PUBLIC VARS
 var row: int = 0
 var column: int = 0
@@ -101,9 +97,9 @@ func deselect():
 
 
 ## Creates a brand new [Unit] in this cell.
-func spawn_unit(unit_type: Unit.UnitType, color):
-	var new_unit: Unit = unit_scene.instantiate()
-	new_unit.init(unit_type, color)
+func spawn_unit(unit_type: PackedScene, color: bool) -> void:
+	var new_unit: Unit = unit_type.instantiate()
+	new_unit.init(color)
 	unit = new_unit
 
 
@@ -128,6 +124,7 @@ func is_highlighted() -> bool:
 
 
 ## Converts a row and column into an index.
+@warning_ignore("shadowed_variable")
 static func convert_pos_to_index(row: int, column: int) -> int:
 	return row * 10 + column
 

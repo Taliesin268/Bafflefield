@@ -106,14 +106,20 @@ func _highlight_movement_cells():
 func _highlight_action_cells():
 	if not _unit_can_act():
 		return
-	var unit_type = _selected_unit.type
-	match unit_type:
-		Unit.UnitType.MONARCH: _highlight_monarch_cells()
-		Unit.UnitType.ARCHER: _highlight_archer_cells()
-		Unit.UnitType.KNIGHT: _highlight_knight_cells()
-		Unit.UnitType.ASSASSIN: _highlight_assassin_cells()
-		Unit.UnitType.PRIEST: _highlight_priest_cells()
-		Unit.UnitType.MAGICIAN: _highlight_magician_cells()
+	
+	if _selected_unit is Archer:
+		return _highlight_archer_cells()
+	if _selected_unit is Assassin:
+		return _highlight_assassin_cells()
+	if _selected_unit is Knight:
+		return _highlight_knight_cells()
+	if _selected_unit is Magician:
+		return _highlight_magician_cells()
+	if _selected_unit is Monarch:
+		return _highlight_monarch_cells()
+	if _selected_unit is Priest:
+		return _highlight_priest_cells()
+
 
 ## Highlights action cells for the Monarch unit.
 func _highlight_monarch_cells():
@@ -311,7 +317,7 @@ func victory_condition_met():
 	# If a monarch has reached the opposite edge, return true
 	for cell in _board.get_cells_with_living_units_by_color(_turn_color):
 		var unit := cell.unit
-		if unit.type == Unit.UnitType.MONARCH:
+		if unit is Monarch:
 			if (
 					(unit.color == WHITE and cell.row == 9 )
 					or (unit.color == BLACK and cell.row == 0)
