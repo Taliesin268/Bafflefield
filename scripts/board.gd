@@ -113,45 +113,45 @@ func change_visibility_by_color(white: bool = false):
 		cell.unit.update_visibility(visibility)
 
 
-## Gets all adjacent cells of the opposite color.
-func get_inverse_cells(from: Cell) -> Array[Cell]:
+## Gets cells based on the provided list of [Vector2i] offsets
+func get_cells_by_offsets(from: Cell, offsets: Array[Vector2i]) -> Array[Cell]:
 	var cells: Array[Cell] = []
-	
-	cells.append(get_cell_by_pos(from.row + 1, from.column))
-	cells.append(get_cell_by_pos(from.row - 1, from.column))
-	cells.append(get_cell_by_pos(from.row, from.column + 1))
-	cells.append(get_cell_by_pos(from.row, from.column - 1))
+
+	for offset in offsets:
+		var cell = get_cell_by_pos(from.row + offset.x, from.column + offset.y)
+		if cell != null:
+			cells.append(cell)
 	
 	return cells
+
+
+## Gets all adjacent cells of the opposite color.
+func get_inverse_cells(from: Cell) -> Array[Cell]:
+	return get_cells_by_offsets(
+		from,
+		[Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	)
 
 
 ## Gets all diagonal cells of the same color.
 func get_diagonal_cells(from: Cell) -> Array[Cell]:
-	var cells: Array[Cell] = []
-	
-	cells.append(get_cell_by_pos(from.row + 1, from.column + 1))
-	cells.append(get_cell_by_pos(from.row + 1, from.column - 1))
-	cells.append(get_cell_by_pos(from.row - 1, from.column + 1))
-	cells.append(get_cell_by_pos(from.row - 1, from.column - 1))
-	
-	return cells
+	return get_cells_by_offsets(
+		from,
+		[Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]
+	)
+
+
+## Gets the next cell of the same color in each cardinal direction.
+func get_ranged_cells(from: Cell) -> Array[Cell]:
+	return get_cells_by_offsets(
+		from,
+		[Vector2i(2, 0), Vector2i(-2, 0), Vector2i(0, 2), Vector2i(0, -2)]
+	)
 
 
 ## Gets all adjacent cells regardless of color.
 func get_adjacent_cells(from: Cell) -> Array[Cell]:
 	return get_inverse_cells(from) + get_diagonal_cells(from) 
-
-
-## Gets the next cell of the same color in each cardinal direction.
-func get_ranged_cells(from: Cell) -> Array[Cell]:
-	var cells: Array[Cell] = []
-	
-	cells.append(get_cell_by_pos(from.row + 2, from.column))
-	cells.append(get_cell_by_pos(from.row - 2, from.column))
-	cells.append(get_cell_by_pos(from.row, from.column + 2))
-	cells.append(get_cell_by_pos(from.row, from.column - 2))
-	
-	return cells
 
 
 ## Gets all cells in a unit's range.
