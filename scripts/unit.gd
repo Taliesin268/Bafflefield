@@ -1,5 +1,4 @@
-class_name Unit
-extends Sprite2D
+class_name Unit extends Sprite2D
 
 # ENUMS
 enum UnitType {ARCHER,ASSASSIN,KNIGHT,MAGICIAN,MONARCH,PRIEST}
