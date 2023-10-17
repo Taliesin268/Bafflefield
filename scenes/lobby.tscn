@@ -1,0 +1,245 @@
+[gd_scene load_steps=2 format=3 uid="uid://cv6ygjkoovug0"]
+
+[ext_resource type="Script" path="res://scenes/lobby.gd" id="1_64ah1"]
+
+[node name="Lobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_64ah1")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -307.5
+offset_top = 100.0
+offset_right = 307.5
+offset_bottom = 240.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 100
+text = "Bafflefield"
+uppercase = true
+
+[node name="Buttons" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HotSeat" type="Button" parent="Buttons"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -40.0
+offset_right = 200.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "Play HotSeat"
+
+[node name="CreateServer" type="Button" parent="Buttons"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = 60.0
+offset_right = 200.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "Create Server
+"
+
+[node name="JoinServer" type="Button" parent="Buttons"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = 140.0
+offset_right = 200.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 50
+text = "Join Server
+"
+
+[node name="JoinServer" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ProvidedIP" type="LineEdit" parent="JoinServer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -75.0
+offset_right = 500.0
+offset_bottom = 75.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+placeholder_text = "Enter Server IP"
+max_length = 15
+
+[node name="Back" type="Button" parent="JoinServer"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -520.0
+offset_top = 95.0
+offset_right = -70.0
+offset_bottom = 195.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "Back"
+
+[node name="Join" type="Button" parent="JoinServer"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 28.0
+offset_top = 95.0
+offset_right = 478.0
+offset_bottom = 195.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+disabled = true
+text = "Join Server"
+
+[node name="Server" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Status" type="Label" parent="Server"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -75.0
+offset_right = 500.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "Waiting for opponent..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ServerIP" type="Label" parent="Server"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_right = 500.0
+offset_bottom = 75.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "Server IP: 256.256.256.256"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Back" type="Button" parent="Server"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -520.0
+offset_top = 95.0
+offset_right = -70.0
+offset_bottom = 195.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "Back"
+
+[node name="Start" type="Button" parent="Server"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 28.0
+offset_top = 95.0
+offset_right = 478.0
+offset_bottom = 195.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+disabled = true
+text = "Start Game"
+
+[connection signal="pressed" from="Buttons/HotSeat" to="." method="_on_hot_seat_pressed"]
+[connection signal="pressed" from="Buttons/CreateServer" to="." method="_on_create_server_pressed"]
+[connection signal="pressed" from="Buttons/JoinServer" to="." method="_on_join_server_pressed"]
+[connection signal="text_changed" from="JoinServer/ProvidedIP" to="." method="_on_provided_ip_text_changed"]
+[connection signal="pressed" from="JoinServer/Back" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="JoinServer/Join" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="Server/Back" to="." method="_on_back_button_pressed"]
