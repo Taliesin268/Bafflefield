@@ -45,6 +45,6 @@ func _highlight_magician_cells(board: Board, previous_action: GameAction) -> voi
 			unit.color == color
 			and not unit.defeated
 			and not unit == self
-			and not cell.is_black()
+			and not _cell.is_black()
 		):
 			_cell.highlight_based_on_action(previous_action)

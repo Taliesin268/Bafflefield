@@ -16,7 +16,11 @@ func _highlight_action_cells(board: Board, previous_action: GameAction) -> void:
 		if _cell.is_black() and not _cell.contains_unit():
 			_cell.highlight_based_on_action(previous_action)
 			
-	# Highlight all adjacent enemy units
-	for _cell in board.get_adjacent_cells(cell):
+	# If on a black cell, cannot attack, so skip next section
+	if cell.is_black():
+		return
+	
+	# Highlight all diagonal enemy units
+	for _cell in board.get_diagonal_cells(cell):
 		if _cell.unit and is_living_enemy(_cell.unit):
 			_cell.highlight_based_on_action(previous_action)
