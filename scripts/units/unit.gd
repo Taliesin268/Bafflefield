@@ -7,6 +7,7 @@ const WHITE_SHADER = preload("res://shaders/unit.gdshader")
 const WHITE = true
 const BLACK = false
 
+
 # PUBLIC VARIABLES
 var defeated: bool = false:
 	set(value):
@@ -51,6 +52,18 @@ func init(_cell: Cell,_color = BLACK):
 		material.shader = WHITE_SHADER
 
 
+## Called when a turn starts for the provided color. Only really used for the 
+## [Priest] revive counter.
+func on_turn_start(_color: bool) -> void:
+	pass
+
+
+## Called after an action has been performed. Used to convert [Magician] into
+## [Monarch].
+func on_action_performed(_board: Board) -> void:
+	pass
+
+
 ## Sets the [member _hidden] property to false. Reveals the unit without 
 ## shadowing [member Sprite2D.hidden] or directly accessing private var 
 ## [member _hidden].
@@ -74,10 +87,66 @@ func update_visibility(visibility: Board.BoardVisibility):
 		Board.BoardVisibility.NONE: _visible = false
 
 
+## Checks if this unit can move based on the provided previous [GameAction].
+func can_move(previous_action: GameAction) -> bool:
+	return not defeated and (
+		previous_action == null
+		or (
+			previous_action.was_move()
+			and not previous_action.was_unit(self)
+		)
+	)
+
+
+## Checks if the unit can use their ability based on the provided previous 
+## [GameAction].
+func can_act(previous_action: GameAction) -> bool:
+	return not defeated and (
+		previous_action == null
+		or (
+			previous_action.was_move()
+			and previous_action.was_unit(self)
+		)
+		or (
+			previous_action.was_ability()
+			and not previous_action.was_unit(self)
+		)
+	)
+
+
+## Highlights all [Cell]s this unit can act upon or move to.
+func highlight_cells(board: Board, previous_action: GameAction) -> void:
+	if can_move(previous_action):
+		_highlight_movement_cells(board, previous_action)
+	if can_act(previous_action):
+		_highlight_action_cells(board, previous_action)
+
+
 # PRIVATE FUNCTIONS
+## Highlights all [Cell]s this unit can move to.
+func _highlight_movement_cells(board: Board, previous_action: GameAction) -> void:
+	for _cell in board.get_movement_cells(cell):
+		# If the cell is an empty, white cell, highlight it.
+		if not _cell.contains_unit() and not _cell.is_black():
+			if previous_action:
+				_cell.highlight(Cell.HighlightLevel.FINAL_MOVE)
+			else:
+				_cell.highlight(Cell.HighlightLevel.MOVE)
+
+
+## Highlights all [Cell]s this unit can act upon.
+@warning_ignore("unused_parameter")
+func _highlight_action_cells(board: Board, previous_action: GameAction) -> void:
+	pass
+
+
+## Returns true if the provided unit is a living enemy of this unit.
+func is_living_enemy(unit: Unit) -> bool:
+	return unit.color != color and not unit.defeated
+
+
 ## Sets the sprites based on the unit type. Uses [method _get_unit_type_name]
 ## to dynamically get the file paths.
-@warning_ignore("static_called_on_instance")
 func _init_sprites():
 	_base_sprite = load(
 		"res://assets/units/{unit}/{unit}.png".format(
@@ -108,6 +177,12 @@ func _update_unit_sprite():
 	else:
 		texture = _base_sprite
 
+
 ## To be overidden by children for the sake of identify asset names.
-static func _get_unit_type_name() -> String:
+func _get_unit_type_name() -> String:
 	return "unit"
+
+
+## Gets the [PackedScene] that contains a unit with this script.
+static func get_scene() -> PackedScene:
+	return load("res://scenes/units/unit.tscn")

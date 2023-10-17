@@ -125,6 +125,13 @@ func is_highlighted() -> bool:
 	return highlight_level > 0
 
 
+func highlight_based_on_action(previous_action: GameAction):
+	if previous_action:
+		highlight(HighlightLevel.FINAL_ACT)
+	else:
+		highlight(HighlightLevel.ACT)
+
+
 ## Converts a row and column into an index.
 @warning_ignore("shadowed_variable")
 static func convert_pos_to_index(row: int, column: int) -> int:

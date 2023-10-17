@@ -11,11 +11,7 @@ const MOVE = false
 
 # PRIVATE VARIABLES
 var _turn_color: bool = WHITE
-var _previous_action: Action
-var _revive_counter = {
-	WHITE: 0,
-	BLACK: 0
-}
+var _previous_action: GameAction
 
 # SHORTCUT VARIABLES
 var _selected_cell: Cell:
@@ -44,7 +40,8 @@ func _start_turn() -> void:
 	# Reset Variables
 	_turn_color = not _turn_color # Switches color
 	_previous_action = null
-	_revive_counter[_turn_color] -= 1
+	for cell in _board.get_cells_with_units():
+		cell.unit.on_turn_start(_turn_color) # Decrements revive counters
 	
 	# Update UI and Board
 	_ui.disable_button()
@@ -83,161 +80,9 @@ func _on_cell_selected() -> void:
 	if (
 			_selected_cell != null
 			and _selected_cell.contains_unit() 
-			and _selected_cell.unit.color == _turn_color
-			and not _selected_cell.unit.defeated
+			and _selected_unit.color == _turn_color
 	):
-		_highlight_movement_cells()
-		_highlight_action_cells()
-
-
-## Highlights all cells the currently selected unit can move to
-func _highlight_movement_cells():
-	if not _unit_can_move():
-		return
-		
-	for cell in _board.get_movement_cells(_selected_cell):
-		# If the cell is an empty, white cell, highlight it.
-		if not cell.contains_unit() and not cell.is_black(): 
-			cell.highlight(_get_highlight_level(MOVE))
-
-
-## Highlights all cells the currently selected unit can affect with their 
-## action. Defers to other functions based on the unit type.
-func _highlight_action_cells():
-	if not _unit_can_act():
-		return
-	
-	if _selected_unit is Archer:
-		return _highlight_archer_cells()
-	if _selected_unit is Assassin:
-		return _highlight_assassin_cells()
-	if _selected_unit is Knight:
-		return _highlight_knight_cells()
-	if _selected_unit is Magician:
-		return _highlight_magician_cells()
-	if _selected_unit is Monarch:
-		return _highlight_monarch_cells()
-	if _selected_unit is Priest:
-		return _highlight_priest_cells()
-
-
-## Highlights action cells for the Monarch unit.
-func _highlight_monarch_cells():
-	for cell in _board.get_movement_cells(_selected_cell):
-		if cell.contains_unit():
-			# Get the next cell in the same direction as the identified unit
-			var bounce_cell = _board.get_next_white_cell(_selected_cell, cell)
-			if (
-				bounce_cell != null
-				and not bounce_cell.contains_unit()
-				# Check that no other action taken yet
-				and _previous_action == null
-			):
-				# This counts as an action and a move, so use final act
-				bounce_cell.highlight(Cell.HighlightLevel.FINAL_ACT)
-
-
-## Highlights action cells for the Archer unit.
-func _highlight_archer_cells():
-	if _previous_action != null and _previous_action.was_unit(_selected_unit):
-		return # If the archer has already moved, they cannot act
-	
-	for cell in _board.get_movement_cells(_selected_cell):
-		if _cell_contains_living_enemy_unit(cell):
-			cell.highlight(_get_highlight_level())
-
-
-## Highlights action cells for the Knight unit.
-func _highlight_knight_cells():
-	# Target all enemy units in adjacent cells
-	for cell in _board.get_adjacent_cells(_selected_cell):
-		if _cell_contains_living_enemy_unit(cell):
-			cell.highlight(_get_highlight_level())
-	
-	# If this unit has already moved, target all empty diagonal cells
-	if (
-			_previous_action != null
-			and _previous_action.was_move() 
-			and _previous_action.was_unit(_selected_unit)
-	):
-		for cell in _board.get_diagonal_cells(_selected_cell):
-			if not cell.contains_unit(): 
-				cell.highlight(_get_highlight_level())
-
-
-## Highlights action cells for the Assassin unit.
-func _highlight_assassin_cells():
-	# Highlight all black and white cells in range
-	for cell in _board.get_cells_in_range(_selected_cell):
-		if cell.is_black() and not cell.contains_unit():
-			cell.highlight(_get_highlight_level())
-			
-	# Highlight all adjacent enemy units
-	for cell in _board.get_adjacent_cells(_selected_cell):
-		if _cell_contains_living_enemy_unit(cell):
-			cell.highlight(_get_highlight_level())
-
-
-## Highlights action cells for the Priest unit.
-func _highlight_priest_cells():
-	# Highlight all dead, friendly units in range if revive is available
-	for cell in _board.get_movement_cells(_selected_cell):
-		if (
-				cell.contains_unit()
-				and cell.unit.color == _turn_color
-				and cell.unit.defeated
-				and _revive_counter[_selected_unit._white] <= 0
-		):
-			cell.highlight(_get_highlight_level())
-
-
-## Highlights action cells for the Magician unit.
-func _highlight_magician_cells():
-	# Highlight all other friendly, living units on black cells
-	for cell in _board.get_cells_with_units():
-		var unit := cell.unit
-		if (
-			unit.color == _turn_color
-			and not unit.defeated
-			and not unit == _selected_unit
-			and not cell.is_black()
-		):
-			cell.highlight(_get_highlight_level())
-
-
-## Returns true if the provided cell contains a living enemy unit.
-func _cell_contains_living_enemy_unit(cell: Cell) -> bool:
-	return (
-			cell.contains_unit()
-			and cell.unit.color != _turn_color 
-			and not cell.unit.defeated
-	)
-
-
-## Checks if the selected unit can move.
-func _unit_can_move() -> bool:
-	return (
-		_previous_action == null
-		or (
-			_previous_action.was_move()
-			and not _previous_action.was_unit(_selected_unit)
-		)
-	)
-
-
-## Checks if the selected unit can use their ability.
-func _unit_can_act() -> bool:
-	return (
-		_previous_action == null
-		or (
-			_previous_action.was_move()
-			and _previous_action.was_unit(_selected_unit)
-		)
-		or (
-			_previous_action.was_ability()
-			and not _previous_action.was_unit(_selected_unit)
-		)
-	)
+		_selected_unit.highlight_cells(_board, _previous_action)
 
 
 ## Returns the appropriate highlight level based for a move or ability.
@@ -264,18 +109,18 @@ func _process_action():
 
 	# If it was a move action, just move the unit to the cell
 	if target.highlight_level == 1 or target.highlight_level == 4:
-		_previous_action = Action.new(unit, from_cell, target)
+		_previous_action = GameAction.new(unit, from_cell, target)
 		_board.move_unit()
 	else:
 		unit.reveal()
-		_previous_action = Action.new(unit, from_cell, target, ABILITY)
+		_previous_action = GameAction.new(unit, from_cell, target, ABILITY)
 		# Check if the target contains a friendly unit
 		if target.contains_unit():
 			if target.unit.color == _turn_color:
 				# If the friendly unit is dead, revive them
 				if target.unit.defeated:
 					target.unit.defeated = false
-					_revive_counter[_turn_color] = 2
+					(unit as Priest).revive_counter = 2
 				# If the friendly unit isn't dead, swap places with them
 				else: 
 					# Get a reference to the target unit before removing it
@@ -294,6 +139,8 @@ func _process_action():
 	
 	# After processing actions, remove all highlights
 	_board.remove_highlight_from_cells()
+	for cell in _board.get_cells_with_units():
+		cell.unit.on_action_performed(_board)
 	
 	# Check if it's the end of the game, or the end of the turn
 	if victory_condition_met(): 
@@ -355,32 +202,3 @@ func _are_valid_actions() -> bool:
 	_ui.print_message("No valid moves left - ending turn...")
 	_board.deselect_cell()
 	return false
-
-## A structure for storing the relevant information about a previous action.
-class Action:
-	var _unit: Unit
-	var _ability: bool # True if ability, false if move
-	var _from: Cell
-	var _to: Cell
-	
-	
-	func _init(unit: Unit, from: Cell, to: Cell, ability: bool = false):
-		_unit = unit
-		_from = from
-		_to = to
-		_ability = ability
-	
-	
-	## Returns true if this action was a move action.
-	func was_move():
-		return not _ability
-	
-	
-	## Returns true if this action was an ability.
-	func was_ability():
-		return _ability
-	
-	
-	## Checks if the supplied unit is the one that performed this action.
-	func was_unit(unit: Unit):
-		return _unit == unit
