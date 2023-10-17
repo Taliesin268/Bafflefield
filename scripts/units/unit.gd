@@ -91,10 +91,7 @@ func update_visibility(visibility: Board.BoardVisibility):
 func can_move(previous_action: GameAction) -> bool:
 	return not defeated and (
 		previous_action == null
-		or (
-			previous_action.was_move()
-			and not previous_action.was_unit(self)
-		)
+		or not (previous_action.was_unit(self) and previous_action.was_move())
 	)
 
 
@@ -103,14 +100,7 @@ func can_move(previous_action: GameAction) -> bool:
 func can_act(previous_action: GameAction) -> bool:
 	return not defeated and (
 		previous_action == null
-		or (
-			previous_action.was_move()
-			and previous_action.was_unit(self)
-		)
-		or (
-			previous_action.was_ability()
-			and not previous_action.was_unit(self)
-		)
+		or not (previous_action.was_unit(self) and previous_action.was_ability())
 	)
 
 
