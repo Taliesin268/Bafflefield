@@ -30,9 +30,11 @@ var unit: Unit:
 		if value == null && unit != null:
 			remove_child(unit)
 			remove_from_group("contains_unit")
+			unit.cell = null
 		elif value != null:
 			add_child(value)
 			add_to_group("contains_unit")
+			value.cell = self
 		unit = value
 ## A computed property to get the index based on the row and column.
 var index: int:
@@ -99,7 +101,7 @@ func deselect():
 ## Creates a brand new [Unit] in this cell.
 func spawn_unit(unit_type: PackedScene, color: bool) -> void:
 	var new_unit: Unit = unit_type.instantiate()
-	new_unit.init(color)
+	new_unit.init(self, color)
 	unit = new_unit
 
 

@@ -1,6 +1,8 @@
 class_name Unit extends Sprite2D
+## The base class for other units to extend.
 
 # CONSTANTS
+## The shader used to invert the colors of the sprite. (Change Black to White)
 const WHITE_SHADER = preload("res://shaders/unit.gdshader")
 const WHITE = true
 const BLACK = false
@@ -11,10 +13,13 @@ var defeated: bool = false:
 		defeated = value
 		_hidden = false
 		_update_unit_sprite()
+## The color of the unit. See [constant WHITE] and [constant BLACK].
 var color: bool:
 	set(value):
 		color = value
 		_update_unit_sprite()
+## The [Cell] this unit is on.
+var cell: Cell
 
 # PRIVATE VARIABLES
 var _visible: bool = true:
@@ -26,14 +31,54 @@ var _hidden: bool = false:
 		_hidden = value
 		_update_unit_sprite()
 
+## The sprite used for a piece that is unknown to the current player.
 var _unknown_sprite := preload("res://assets/units/hidden-piece.png")
+## The sprite used when the unit has been defeated
 var _defeated_sprite: Resource
+## The sprite used when unit is hidden, but visible to current player.
 var _hidden_sprite: Resource
+## The sprite used when unit is not hidden or defeated.
 var _base_sprite: Resource
 
+
 # PUBLIC FUNCTIONS
+func init(_cell: Cell,_color = BLACK):
+	_init_sprites()
+	color = _color
+	cell = _cell
+	if color == WHITE:
+		material = ShaderMaterial.new()
+		material.shader = WHITE_SHADER
+
+
+## Sets the [member _hidden] property to false. Reveals the unit without 
+## shadowing [member Sprite2D.hidden] or directly accessing private var 
+## [member _hidden].
+func reveal():
+	_hidden = false
+
+
+## Sets the [member _hidden] property to true. Hides the unit without shadowing
+## in-built [method CanvasItem.hide], shadowing [member Sprite2D.hidden] or
+## directly accessing private var [member _hidden].
+func hide_unit():
+	_hidden = true
+
+
+## Sets [member _visible] based on the provided [enum Board.BoardVisibility].
+func update_visibility(visibility: Board.BoardVisibility):
+	match visibility:
+		Board.BoardVisibility.ALL: _visible = true
+		Board.BoardVisibility.WHITE: _visible = color == WHITE
+		Board.BoardVisibility.BLACK: _visible = color == BLACK
+		Board.BoardVisibility.NONE: _visible = false
+
+
+# PRIVATE FUNCTIONS
+## Sets the sprites based on the unit type. Uses [method _get_unit_type_name]
+## to dynamically get the file paths.
 @warning_ignore("static_called_on_instance")
-func init(_color = BLACK):
+func _init_sprites():
 	_base_sprite = load(
 		"res://assets/units/{unit}/{unit}.png".format(
 					{"unit": _get_unit_type_name()}
@@ -49,25 +94,9 @@ func init(_color = BLACK):
 					{"unit": _get_unit_type_name()}
 			)
 	)
-	color = _color
-	if color == WHITE:
-		material = ShaderMaterial.new()
-		material.shader = WHITE_SHADER
 
-func reveal():
-	_hidden = false
 
-func hide_unit():
-	_hidden = true
-
-func update_visibility(visibility: Board.BoardVisibility):
-	match visibility:
-		Board.BoardVisibility.ALL: _visible = true
-		Board.BoardVisibility.NONE: _visible = false
-		Board.BoardVisibility.WHITE: _visible = color == WHITE
-		Board.BoardVisibility.BLACK: _visible = color == BLACK
-
-# PRIVATE FUNCTIONS
+## Updates the sprite based on the current status.
 func _update_unit_sprite():
 	if defeated:
 		texture = _defeated_sprite
