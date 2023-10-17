@@ -11,7 +11,7 @@ func _get_unit_type_name() -> String:
 
 ## Highlights all [Cell]s this unit can act upon.
 func _highlight_action_cells(board: Board, previous_action: GameAction) -> void:
-	# Highlight all black and white cells in range
+	# Highlight all black cells in range
 	for _cell in board.get_cells_in_range(cell):
 		if _cell.is_black() and not _cell.contains_unit():
 			_cell.highlight_based_on_action(previous_action)

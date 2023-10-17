@@ -196,7 +196,7 @@ func get_cells_in_range(from: Cell) -> Array[Cell]:
 
 ## Gets all [Cell]s of the same color in a unit's range.
 func get_movement_cells(from: Cell) -> Array[Cell]:
-	return get_diagonal_cells(from) + get_ranged_cells(from)
+	return get_adjacent_cells(from) + get_ranged_cells(from)
 
 
 ## Given two [Cell]s that are in neighbouring white [Cell]s, returns the next white

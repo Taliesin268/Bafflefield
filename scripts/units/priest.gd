@@ -30,6 +30,6 @@ func _can_be_revived(unit: Unit) -> bool:
 ## Highlights all [Cell]s this unit can act upon.
 func _highlight_action_cells(board: Board, previous_action: GameAction) -> void:
 	# Highlight all dead, friendly units in range if revive is available
-	for _cell in board.get_movement_cells(cell):
+	for _cell in board.get_cells_in_range(cell):
 		if _cell.contains_unit() and _can_be_revived(_cell.unit):
 			_cell.highlight_based_on_action(previous_action)

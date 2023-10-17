@@ -115,7 +115,7 @@ func highlight_cells(board: Board, previous_action: GameAction) -> void:
 # PRIVATE FUNCTIONS
 ## Highlights all [Cell]s this unit can move to.
 func _highlight_movement_cells(board: Board, previous_action: GameAction) -> void:
-	for _cell in board.get_movement_cells(cell):
+	for _cell in board.get_cells_in_range(cell):
 		# If the cell is an empty, white cell, highlight it.
 		if not _cell.contains_unit() and not _cell.is_black():
 			if previous_action:
