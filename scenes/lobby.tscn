@@ -1,45 +1,47 @@
-[gd_scene load_steps=2 format=3 uid="uid://cv6ygjkoovug0"]
+[gd_scene load_steps=3 format=3 uid="uid://cv6ygjkoovug0"]
 
-[ext_resource type="Script" path="res://scenes/lobby.gd" id="1_64ah1"]
+[ext_resource type="Script" path="res://scripts/lobby.gd" id="1_50t2o"]
+[ext_resource type="Script" path="res://scripts/multiplayer.gd" id="1_pis4f"]
 
-[node name="Lobby" type="Control"]
+[node name="Multiplayer" type="Node"]
+script = ExtResource("1_pis4f")
+
+[node name="Lobby" type="Control" parent="."]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_64ah1")
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_50t2o")
 
-[node name="Title" type="Label" parent="."]
+[node name="Title" type="Label" parent="Lobby"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -307.5
+offset_left = 582.5
 offset_top = 100.0
-offset_right = 307.5
+offset_right = 1197.5
 offset_bottom = 240.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 100
 text = "Bafflefield"
 uppercase = true
 
-[node name="Buttons" type="Control" parent="."]
+[node name="Buttons" type="Control" parent="Lobby"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+offset_left = 870.0
+offset_top = 472.0
+offset_right = 910.0
+offset_bottom = 512.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HotSeat" type="Button" parent="Buttons"]
+[node name="HotSeat" type="Button" parent="Lobby/Buttons"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -55,7 +57,7 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 50
 text = "Play HotSeat"
 
-[node name="CreateServer" type="Button" parent="Buttons"]
+[node name="CreateServer" type="Button" parent="Lobby/Buttons"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -72,7 +74,7 @@ theme_override_font_sizes/font_size = 50
 text = "Create Server
 "
 
-[node name="JoinServer" type="Button" parent="Buttons"]
+[node name="JoinServer" type="Button" parent="Lobby/Buttons"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -89,7 +91,7 @@ theme_override_font_sizes/font_size = 50
 text = "Join Server
 "
 
-[node name="JoinServer" type="Control" parent="."]
+[node name="JoinServer" type="Control" parent="Lobby"]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -97,14 +99,14 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+offset_left = 870.0
+offset_top = 472.0
+offset_right = 910.0
+offset_bottom = 512.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ProvidedIP" type="LineEdit" parent="JoinServer"]
+[node name="ProvidedIP" type="LineEdit" parent="Lobby/JoinServer"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -121,7 +123,7 @@ theme_override_font_sizes/font_size = 50
 placeholder_text = "Enter Server IP"
 max_length = 15
 
-[node name="Back" type="Button" parent="JoinServer"]
+[node name="Back" type="Button" parent="Lobby/JoinServer"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -137,7 +139,7 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 50
 text = "Back"
 
-[node name="Join" type="Button" parent="JoinServer"]
+[node name="Join" type="Button" parent="Lobby/JoinServer"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -154,7 +156,7 @@ theme_override_font_sizes/font_size = 50
 disabled = true
 text = "Join Server"
 
-[node name="Server" type="Control" parent="."]
+[node name="Server" type="Control" parent="Lobby"]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -162,14 +164,14 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+offset_left = 870.0
+offset_top = 472.0
+offset_right = 910.0
+offset_bottom = 512.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Status" type="Label" parent="Server"]
+[node name="Status" type="Label" parent="Lobby/Server"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -186,7 +188,7 @@ text = "Waiting for opponent..."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ServerIP" type="Label" parent="Server"]
+[node name="ServerIP" type="Label" parent="Lobby/Server"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -203,7 +205,7 @@ text = "Server IP: 256.256.256.256"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Back" type="Button" parent="Server"]
+[node name="Back" type="Button" parent="Lobby/Server"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -219,7 +221,7 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 50
 text = "Back"
 
-[node name="Start" type="Button" parent="Server"]
+[node name="Start" type="Button" parent="Lobby/Server"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -236,10 +238,11 @@ theme_override_font_sizes/font_size = 50
 disabled = true
 text = "Start Game"
 
-[connection signal="pressed" from="Buttons/HotSeat" to="." method="_on_hot_seat_pressed"]
-[connection signal="pressed" from="Buttons/CreateServer" to="." method="_on_create_server_pressed"]
-[connection signal="pressed" from="Buttons/JoinServer" to="." method="_on_join_server_pressed"]
-[connection signal="text_changed" from="JoinServer/ProvidedIP" to="." method="_on_provided_ip_text_changed"]
-[connection signal="pressed" from="JoinServer/Back" to="." method="_on_back_button_pressed"]
-[connection signal="pressed" from="JoinServer/Join" to="." method="_on_join_pressed"]
-[connection signal="pressed" from="Server/Back" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="Lobby/Buttons/HotSeat" to="Lobby" method="_on_hot_seat_pressed"]
+[connection signal="pressed" from="Lobby/Buttons/CreateServer" to="Lobby" method="_on_create_server_pressed"]
+[connection signal="pressed" from="Lobby/Buttons/JoinServer" to="Lobby" method="_on_join_server_pressed"]
+[connection signal="text_changed" from="Lobby/JoinServer/ProvidedIP" to="Lobby" method="_on_provided_ip_text_changed"]
+[connection signal="pressed" from="Lobby/JoinServer/Back" to="Lobby" method="_on_back_button_pressed"]
+[connection signal="pressed" from="Lobby/JoinServer/Join" to="Lobby" method="_on_join_pressed"]
+[connection signal="pressed" from="Lobby/Server/Back" to="Lobby" method="_on_back_button_pressed"]
+[connection signal="pressed" from="Lobby/Server/Start" to="Lobby" method="_on_start_game"]

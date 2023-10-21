@@ -17,6 +17,7 @@ var state: State:
 		state._enter_state()
 
 # ON-READY VARIABLES
+var game_server: Multiplayer
 ## A quick reference to the child UI component.
 @onready var ui := $UI as UI
 ## A quick reference to the child Board component.
@@ -24,4 +25,9 @@ var state: State:
 
 # BUILT-IN FUNCTIONS
 func _ready():
-	state = CharacterSelectState.new(self)
+	var parent = get_parent()
+	if parent and parent is Multiplayer:
+		game_server = parent
+		state = MultiplayerCharacterSelectState.new(self)
+	else:
+		state = CharacterSelectState.new(self)
