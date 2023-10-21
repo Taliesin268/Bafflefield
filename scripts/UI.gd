@@ -1,12 +1,20 @@
 class_name UI extends Control
 
+# PUBLIC VARIABLES
+## Whether this is a hotseat game
+var hotseat := true
+
 # ON-READY VARIABLES
 @onready var button := $Button as Button
 @onready var textContainer := $TextScroller/TextContainer as VBoxContainer
 @onready var textScroller := $TextScroller as ScrollContainer
 
 ## Adds a message to the message pane, and scrolls to the bottom of the pane.
-func print_message(message: String):
+func print_message(message: String, _hotseat := true):
+	# Ignore the message if meant for hotseat and we're not in hotseat mode.
+	if _hotseat == true and not hotseat:
+		return
+	
 	# Add a new label object to the textbox
 	var label = Label.new()
 	label.text = message

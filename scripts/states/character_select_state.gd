@@ -20,7 +20,8 @@ func _enter_state() -> void:
 
 func _exit_state() -> void:
 	_board.remove_highlight_from_cells()
-	_board.cell_selected.disconnect(_on_cell_selected)
+	if _board.cell_selected.is_connected(_on_cell_selected):
+		_board.cell_selected.disconnect(_on_cell_selected)
 
 
 # CONNECTED SIGNALS
@@ -117,7 +118,7 @@ func _characters_selected() -> bool:
 	for i in 5:
 		if _color == WHITE and not _board.get_cell(i * 2 + 1).contains_unit():
 			return false
-		elif not _board.get_cell(i * 2 + 90).contains_unit():
+		elif _color == BLACK and not _board.get_cell(i * 2 + 90).contains_unit():
 			return false
 	
 	return true

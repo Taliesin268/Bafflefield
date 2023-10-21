@@ -43,6 +43,21 @@ var _base_sprite: Resource
 
 
 # PUBLIC FUNCTIONS
+static func get_class_by_unit_type_string(unit_type_string: String):
+	match unit_type_string:
+		"archer":
+			return Archer
+		"assassin":
+			return Assassin
+		"knight":
+			return Knight
+		"magician":
+			return Magician
+		"monarch":
+			return Monarch
+		"priest":
+			return Priest
+
 func init(_cell: Cell,_color = BLACK):
 	_init_sprites()
 	color = _color

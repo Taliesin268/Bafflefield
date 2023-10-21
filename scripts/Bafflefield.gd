@@ -28,6 +28,7 @@ func _ready():
 	var parent = get_parent()
 	if parent and parent is Multiplayer:
 		game_server = parent
+		ui.hotseat = false
 		state = MultiplayerCharacterSelectState.new(self)
 	else:
 		state = CharacterSelectState.new(self)

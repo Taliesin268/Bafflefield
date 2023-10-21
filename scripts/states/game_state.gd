@@ -110,33 +110,14 @@ func _process_action():
 	# If it was a move action, just move the unit to the cell
 	if target.highlight_level == 1 or target.highlight_level == 4:
 		_previous_action = GameAction.new(unit, from_cell, target)
-		_board.move_unit()
+		_process_ability(target, from_cell, _turn_color, false)
 	else:
-		unit.reveal()
 		_previous_action = GameAction.new(unit, from_cell, target, ABILITY)
-		# Check if the target contains a friendly unit
-		if target.contains_unit():
-			if target.unit.color == _turn_color:
-				# If the friendly unit is dead, revive them
-				if target.unit.defeated:
-					target.unit.defeated = false
-					(unit as Priest).revive_counter = 2
-				# If the friendly unit isn't dead, swap places with them
-				else: 
-					# Get a reference to the target unit before removing it
-					var target_unit = target.unit
-					target.unit = null
-					
-					# Move the unit, then put the reference into the current
-					_board.move_unit()
-					from_cell.unit = target_unit
-			# If the target is a unit of the opposite color, defeat it
-			else:
-				target.unit.defeated = true
-		else:
-			# If there is no unit in the target, just move there.
-			_board.move_unit()
+		_process_ability(target, from_cell, _turn_color, true)
 	
+	_post_process_action(turn_ending_action)
+
+func _post_process_action(turn_ending_action: bool):
 	# After processing actions, remove all highlights
 	_board.remove_highlight_from_cells()
 	for cell in _board.get_cells_with_units():
@@ -152,7 +133,32 @@ func _process_action():
 	
 	_ui.set_button("End Turn Early", _end_turn)
 
-
+func _process_ability(target: Cell, source: Cell, originator: bool, ability: bool):
+	if ability:
+		source.unit.reveal()
+	
+	# Check if the target contains a friendly unit
+	if target.contains_unit():
+		if target.unit.color == originator:
+			# If the friendly unit is dead, revive them
+			if target.unit.defeated:
+				target.unit.defeated = false
+				(source.unit as Priest).revive_counter = 2
+			# If the friendly unit isn't dead, swap places with them
+			else: 
+				# Get a reference to the target unit before removing it
+				var target_unit = target.unit
+				target.unit = null
+				
+				# Move the unit, then put the reference into the current
+				_board.move_unit(source, target)
+				source.unit = target_unit
+		# If the target is a unit of the opposite color, defeat it
+		else:
+			target.unit.defeated = true
+	else:
+		# If there is no unit in the target, just move there.
+		_board.move_unit(source, target)
 
 ## Checks if either win condition has been met. (Monarch at enemy baseline, or
 ## all enemy units are dead)

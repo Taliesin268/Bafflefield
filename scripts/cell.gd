@@ -99,9 +99,11 @@ func deselect():
 
 
 ## Creates a brand new [Unit] in this cell.
-func spawn_unit(unit_type: PackedScene, color: bool) -> void:
+func spawn_unit(unit_type: PackedScene, color: bool, _hidden := false) -> void:
 	var new_unit: Unit = unit_type.instantiate()
 	new_unit.init(self, color)
+	if _hidden:
+		new_unit.hide_unit()
 	unit = new_unit
 
 

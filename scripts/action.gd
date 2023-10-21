@@ -27,3 +27,10 @@ func was_ability() -> bool:
 ## Checks if the supplied unit is the one that performed this action.
 func was_unit(unit: Unit) -> bool:
 	return _unit == unit
+
+
+func get_target() -> Cell:
+	return _to
+	
+func get_source() -> Cell:
+	return _from

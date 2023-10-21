@@ -110,17 +110,17 @@ func remove_highlight_from_cells():
 
 ## Moves the previously selected unit ([member previous_unit]) to the currently
 ## selected cell ([member selected_cell]).
-func move_unit():
+func move_unit(from: Cell = previous_cell, to: Cell = selected_cell):
 	# Throw an error if either the previous current cell are missing
 	assert(
-			previous_cell != null and selected_cell != null, 
+			from != null and to != null, 
 			"Error: Could not move unit. Previous cell or current cell do not exist."
 	)
 	
-	var unit := previous_unit
-	previous_cell.unit = null
+	var unit := from.unit
+	from.unit = null
 	
-	selected_cell.unit = unit
+	to.unit = unit
 
 
 ## Hides all [Unit]s. Used for initialising the game.
